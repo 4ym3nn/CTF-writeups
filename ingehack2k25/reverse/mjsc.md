@@ -15,8 +15,6 @@
 - **Type**: Web/JavaScript
 - **Flag**: ingehack{i_hate_js_rev_chals_they_never_have_a_new_idea}
 
-## Challenge Overview
-This challenge involves reverse engineering a JavaScript application. The challenge focuses on understanding and bypassing JavaScript-based security mechanisms, demonstrating why security through obscurity is not a reliable defense strategy.
 
 ## Initial Analysis
 The challenge presented us with a web application that needed to be analyzed. The initial reconnaissance showed:
@@ -49,20 +47,11 @@ Key Components:
    - Identified React components and their structure
    - Located the main validation logic in obfuscated form
    - Analyzed the onSubmit handler containing the core challenge logic
-
-## Solution Path
-1. Deobfuscated the JavaScript code
-2. Analyzed the validation logic
-3. Identified the flag format
-4. Bypassed the security checks
-5. Retrieved the flag: ingehack{i_hate_js_rev_chals_they_never_have_a_new_idea}
 ## Tools
 - Web Browser Developer Tools
 - JavaScript Deobfuscator
 - Code Analysis Tools
 
-## Additional Notes
-The challenge name "mjsc" and the flag content both hint at the core concept being demonstrated: that security through obscurity (hiding or obfuscating code) is not a reliable security measure.
 
 ## Challenge Impact
 This challenge effectively demonstrates:
