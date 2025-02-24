@@ -1,7 +1,9 @@
 ---
 layout: default
 ---
-- [reverse](./reverse/dados)
+- [dados](./reverse/dados)
+- [mjsc](./reverse/mjsc)
+
 - soon adding more
 
 
