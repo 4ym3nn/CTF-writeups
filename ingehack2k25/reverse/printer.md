@@ -42,12 +42,38 @@ The `decrypt_image()` function in `sol.py` implements the decryption using NumPy
 
 ### **Execution**
 To decrypt the image, simply run:
-```sh
-python sol.py
-```
-If successful, it prints:
-```
-Image decrypted successfully. Saved as 'decrypted.png'
+```python
+import numpy as np
+
+def decrypt_image():
+    # Read the encrypted file
+    with open("enc", "rb") as f:
+        data = f.read()
+    
+    # Convert to numpy array of doubles
+    doubles = np.frombuffer(data, dtype=np.float64)
+    
+    # Reshape into complex numbers (real + imaginary pairs)
+    complex_data = doubles.reshape(-1, 2)
+    complex_numbers = complex_data[:, 0] + 1j * complex_data[:, 1]
+    
+    # Apply inverse FFT to get back to time domain
+    time_domain_data = np.fft.ifft(complex_numbers)
+    
+    # Convert the real parts to bytes
+    # Round and clip to ensure valid byte values (0-255)
+    byte_data = np.clip(np.round(np.real(time_domain_data)), 0, 255).astype(np.uint8)
+    
+    # Write the decrypted data to a PNG file
+    with open("decrypted.png", "wb") as f:
+        f.write(bytes(byte_data))
+
+if __name__ == "__main__":
+    try:
+        decrypt_image()
+        print("Image decrypted successfully. Saved as 'decrypted.png'")
+    except Exception as e:
+        print(f"Error occurred: {e}")
 ```
 
 ### **Flag**
@@ -56,5 +82,5 @@ After running the decryption, examining `decrypted.png` reveals the flag:
 
 
 ---
-This challenge demonstrates how Fourier transformations can be used in encryption and how applying inverse transformations can recover the original data.
+
 
