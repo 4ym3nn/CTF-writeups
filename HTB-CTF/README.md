@@ -2,11 +2,11 @@
 layout: default
 ---
 
-- [dados](./crypto_alphascii_testing/sol)
+- [chall1](./crypto_alphascii_testing/sol)
   
-- [mjsc](./crypto_cryptospiracy_theory/mjsc)
+- [chall2](./crypto_cryptospiracy_theory/sol)
   
-- [printer](./crypto_exfiltrated_entropy/printer)
+- [chall3](./crypto_exfiltrated_entropy/sol)
 
 - soon adding more
 
