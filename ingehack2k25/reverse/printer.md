@@ -1,93 +1,60 @@
 # IngeHack2k25 - reverse/mjsc Write-up
 
 ## Challenge Overview
-**Challenge Name**: reverse/mjsc  
+**Challenge Name**: reverse/printer  
 **Category**: Reverse Engineering  
 **Event**: IngeHack 2k25  
 **Difficulty**: Medium  
-**Flag**: `ingehack{i_hate_js_rev_chals_they_never_have_a_new_idea}`  
+**Flag**: `ingehack{...}`  
+## Fourier Transformation-Based Image Decryption
 
-We’re given an encrypted file (`enc`) and tasked with recovering the original image. The challenge involves reversing a Discrete Fourier Transform (DFT)-based encryption process implemented in JavaScript.
-    IFFT: np.fft.ifft reverses the DFT, converting frequency-domain data back to the original pixel values.
+### **Challenge Analysis**
 
-    Byte Conversion: After IFFT, the real parts are rounded and clamped to valid pixel values (0-255).
+Upon analyzing the provided files, we observed the following directory structure:
+```
+➜  solver ls 
+decrypted.png  enc  main  reconstructed_data.txt  sol.py
+```
+The main objective is to decrypt the file `enc` to retrieve an image. By inspecting `main`, we determined that it applies a Fourier transformation, meaning the encryption likely involves transforming the image into the frequency domain. 
 
-Why This Works
+To recover the original image, we need to apply the **Inverse Fourier Transform (IFFT)** to `enc` and reconstruct the original pixel data.
 
-    The encryption process used DFT to transform image data into the frequency domain.
+### **Decryption Process**
+The `decrypt_image()` function in `sol.py` implements the decryption using NumPy’s FFT functions. Below is a step-by-step breakdown of how it works:
 
-    The enc file stores these frequency components as complex numbers.
+1. **Read the Encrypted File**
+   - The function reads `enc` as a binary file.
+   - The binary data is interpreted as an array of `float64` values.
 
-    By applying IFFT, we reverse the transformation and recover the original image bytes.
+2. **Reshape into Complex Numbers**
+   - The data is reshaped into pairs of real and imaginary components.
+   - These are converted into complex numbers representing frequency-domain data.
 
-Flag Extraction
+3. **Apply Inverse FFT (IFFT)**
+   - The inverse Fourier transform is applied to reconstruct the time-domain (original pixel) data.
 
-Running the script produces decrypted.png, which displays the flag:
-Decrypted Flag
-Conclusion
+4. **Convert Back to Byte Values**
+   - The real part of the transformed data is extracted.
+   - Values are rounded, clipped between 0-255, and converted to `uint8` format.
 
-This challenge tested reverse engineering skills focused on understanding DFT-based encryption. The key takeaways:
+5. **Save as PNG File**
+   - The decrypted image is written to `decrypted.png`.
 
-    Recognizing the use of Fourier Transforms in data obfuscation.
+### **Execution**
+To decrypt the image, simply run:
+```sh
+python sol.py
+```
+If successful, it prints:
+```
+Image decrypted successfully. Saved as 'decrypted.png'
+```
 
-    Leveraging numpy’s FFT utilities for efficient decryption.
+### **Flag**
+After running the decryption, examining `decrypted.png` reveals the flag:
+![decrypted](https://github.com/user-attachments/assets/a7723893-ea29-4ca2-a527-b2a7e4662af5)
 
-    Handling binary data and type conversions in Python.
 
-Flag: ingehack{i_hate_js_rev_chals_they_never_have_a_new_idea}
-Copy
-
-New chat
-AI-generated, for reference only
 ---
+This challenge demonstrates how Fourier transformations can be used in encryption and how applying inverse transformations can recover the original data.
 
-## Solution Approach
-The encryption process converts pixel data from an image into the frequency domain using a DFT. To decrypt it, we:
-1. Read the DFT coefficients from `enc` (stored as complex numbers).
-2. Apply the **Inverse Fast Fourier Transform (IFFT)** to reconstruct the original pixel data.
-3. Convert the numerical data back into a valid PNG image.
-
----
-
-## Step-by-Step Solution
-
-### 1. Understanding the Encryption
-The challenge uses JavaScript to:
-- Read an image file (e.g., PNG).
-- Split its bytes into pairs of `double` values (real/imaginary parts).
-- Apply DFT to convert the data into the frequency domain.
-- Save the transformed complex numbers to `enc`.
-
-### 2. Decryption Strategy
-To reverse this:
-- **Step 1**: Extract the complex numbers from `enc`.  
-- **Step 2**: Compute the Inverse DFT (or IFFT) to recover the time-domain signal (original image bytes).  
-- **Step 3**: Convert the numerical output to valid image bytes and save as a PNG.
-
-### 3. Python Code Implementation
-```python
-import numpy as np
-
-def decrypt_image():
-    # Read encrypted data
-    with open("enc", "rb") as f:
-        data = f.read()
-    
-    # Convert bytes to array of doubles (float64)
-    doubles = np.frombuffer(data, dtype=np.float64)
-    
-    # Reshape into complex numbers (real, imaginary pairs)
-    complex_data = doubles.reshape(-1, 2)
-    complex_numbers = complex_data[:, 0] + 1j * complex_data[:, 1]
-    
-    # Apply Inverse FFT
-    time_domain_data = np.fft.ifft(complex_numbers)
-    
-    # Convert to valid bytes (0-255 range)
-    byte_data = np.clip(np.round(np.real(time_domain_data)), 0, 255).astype(np.uint8)
-    
-    # Save as PNG
-    with open("decrypted.png", "wb") as f:
-        f.write(bytes(byte_data))
-
-decrypt_image()
