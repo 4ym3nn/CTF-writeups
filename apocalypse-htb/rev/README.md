@@ -335,7 +335,7 @@ if __name__ == "__main__":
 ### Step 9: Generating a Transformation Map
 
 Using the script, I built a transformation map that accounts for the character swapping and hashing behavior. The resulting transformation map is available here: [transformation_map.json](transformation_map.json).
-```
+```json
 {
     "0": {
         "changed_indices": 20,
@@ -569,7 +569,7 @@ Using the script, I built a transformation map that accounts for the character s
 Finally, I wrote a script to reverse the hash using the transformation map. This script reconstructs the original input that matches the expected hash values.
 
 Here is the script for reversing the hash: [flagprinter.py](flagprinter.py).
-```
+```python
 flag=[]
 for i in range(32):
     for key, value in chars.items():
