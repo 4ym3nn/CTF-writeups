@@ -4,7 +4,7 @@
 
 Malakar has ensnared you with a dark spell, banishing you to the depths of the Nether world. Escape hinges on recalling the ancient enchantments of your forefathers. Wield their arcane power to shatter the Aether gateways and reclaim your freedom. Only the correct incantation—32 bytes of mystical precision—will unlock the path back to the mortal realm. Can you decipher the spell and blast through the barriers of this infernal trap?
 
-![Challenge Image](challengepic)
+![Challenge Image](challengepic.png)
 
 **Author:** 4ymen  
 **Flag:** `HTB{r3tf@r_t0_tH3_h3@V3n5g@t3!!}`
