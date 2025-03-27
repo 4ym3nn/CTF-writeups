@@ -2,7 +2,7 @@
 layout: default
 ---
 
-- [reverse](./rev/README)
+- [reverse](rev/README.md)
   
 - [crypto](./crypto/README)
   
