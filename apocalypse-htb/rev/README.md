@@ -177,7 +177,7 @@ This showed `$ebp-0x19c` differing from `$ebp-0x11c`, with `$ebp-0x1cd = 0`, pro
 
 Since the hash function is deterministic, I sent every printable character as input (repeated 32 times to match the required length) and captured the hashed values. This allowed me to build a hash map of characters to their corresponding hash values.
 
-Here is the hash map I generated: [hash_map_chars.json](./hash_map_chars.json).
+Here is the hash map I generated: [hash_map_chars.json](hash_map_chars.json).
 
 ### Step 7: Observing Character Swapping
 
@@ -187,17 +187,17 @@ Upon analyzing the results, I discovered that the hash function swaps characters
 
 To address this, I wrote a script to dynamically analyze the hashing process. The script sends input to the binary, examines the hashed values at `$ebp-0x19c`, and modifies one character at a time while keeping the others fixed. By observing which hash value changes, I could map each character to its transformed hash.
 
-Here is the script I used: [solver.py](./solver.py).
+Here is the script I used: [solver.py](solver.py).
 
 ### Step 9: Generating a Transformation Map
 
-Using the script, I built a transformation map that accounts for the character swapping and hashing behavior. The resulting transformation map is available here: [transformation_map.json](./transformation_map.json).
+Using the script, I built a transformation map that accounts for the character swapping and hashing behavior. The resulting transformation map is available here: [transformation_map.json](transformation_map.json).
 
 ### Step 10: Reversing the Hash
 
 Finally, I wrote a script to reverse the hash using the transformation map. This script reconstructs the original input that matches the expected hash values.
 
-Here is the script for reversing the hash: [flagprinter.py](./flagprinter.py).
+Here is the script for reversing the hash: [flagprinter.py](flagprinter.py).
 
 ---
 
