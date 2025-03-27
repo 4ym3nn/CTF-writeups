@@ -188,17 +188,396 @@ Upon analyzing the results, I discovered that the hash function swaps characters
 To address this, I wrote a script to dynamically analyze the hashing process. The script sends input to the binary, examines the hashed values at `$ebp-0x19c`, and modifies one character at a time while keeping the others fixed. By observing which hash value changes, I could map each character to its transformed hash.
 
 Here is the script I used: [solver.py](solver.py).
+```python
+#!/usr/bin/env python3
+import pexpect
+import re
+import sys
+import traceback
+import json
 
+def run_gdb_interaction(binary_path, password):
+    try:
+        # Spawn GDB process with verbose output
+        gdb = pexpect.spawn(f'gdb {binary_path}', encoding='utf-8', logfile=sys.stdout)
+        gdb.timeout = 10
+        
+        # Set breakpoint
+        gdb.sendline('break *0x08049f05')
+        
+        # Run the program
+        gdb.sendline('run')
+        
+        # Wait for program prompts or events
+        while True:
+            index = gdb.expect([
+                'Breakpoint 1, ', 
+                'Recall the ✨ enchantments ✨ of your forefathers: ', 
+                'Program received signal', 
+                'No such file or directory',
+                pexpect.TIMEOUT, 
+                pexpect.EOF
+            ])
+            
+            if index == 0:
+                print(f"[DEBUG] Breakpoint hit with password: {password}")
+                break
+            elif index == 1:
+                print(f"[DEBUG] Sending password: {password}")
+                gdb.sendline(password)
+                break
+            elif index in [2, 3, 4, 5]:
+                print(f"[DEBUG] Unexpected event. Index: {index}")
+                gdb.close()
+                return None
+        
+        gdb.expect_exact("(gdb)")
+        # Examine memory location
+        gdb.sendline('x/32xw $ebp-0x19c')
+        gdb.expect_exact("(gdb)")
+        memory_output = gdb.before
+        gdb.sendline('x/32xw $ebp-0x11c')
+        gdb.expect_exact("(gdb)")
+        flag_output = gdb.before
+                
+        # Quit GDB
+        gdb.sendline('quit')
+        gdb.close()
+        
+        return parse_memory_output(memory_output),parse_memory_output(flag_output)
+
+    except Exception as e:
+        print("[DEBUG] Unexpected error:")
+        print(traceback.format_exc())
+        return None
+
+def parse_memory_output(output):
+    memory_values = []
+    
+    for line in output.splitlines():
+        match = re.search(r':\s*(.*)', line)
+        if match:
+            values = match.group(1).split()
+            memory_values.extend(values)
+    
+    return memory_values
+
+def map_character_transformations(binary_path):
+    # Initial password with all 'A's
+    base_password = 'HTB{' + 'A' * 27 + '}'
+    
+    # Dictionary to store character transformations
+    transformation_map = {}
+    
+    # Iterate through each position to map
+    for pos in range(len(base_password)):  # Skip 'HTB{' and '}'
+        print(f"\n[DEBUG] Mapping transformations for position {pos}")
+        
+        # Prepare passwords with A and B at the current position
+        a_password = list(base_password)
+        b_password = list(base_password)
+        a_password[pos] = 'A'
+        b_password[pos] = 'B'
+        
+        # Convert to strings
+        a_password_str = ''.join(a_password)
+        b_password_str = ''.join(b_password)
+        
+        # Get memory values for A and B
+        a_memory,flag_output1 = run_gdb_interaction(binary_path, a_password_str)
+        b_memory,flag_output2 = run_gdb_interaction(binary_path, b_password_str)
+        
+        if a_memory is None or b_memory is None:
+            print(f"[ERROR] Failed to get memory for position {pos}")
+            continue
+        j=0;
+        for i in  range(len(a_memory)):
+            if a_memory[i]!=b_memory[i]:
+                j=i;
+                
+        # Find indices where memory differs
+        different_indices = j;
+        
+        # Store transformation details
+        transformation_map[pos] = {
+            'changed_indices': different_indices,
+            'a_values': a_memory[j] ,
+            'b_values': b_memory[j],
+            'you_have_to_match':flag_output1[j],
+            'you_have_to_match2':flag_output2[j],
+            
+        }
+        
+
+    
+    return transformation_map
+
+def main():
+    binary_path = "./gateway"  # Replace with actual binary path
+    
+    # Map character transformations
+    transformation_map = map_character_transformations(binary_path)
+    
+    # Write the transformation map to a JSON file
+    with open('transformation_map.json', 'w') as json_file:
+        json.dump(transformation_map, json_file, indent=4)
+    # Print summary
+    print("\n[SUMMARY] Transformation Map:")
+    for pos, details in transformation_map.items():
+        print(f"Position {pos}:")
+        print(f"  Changed Indices: {details['changed_indices']}")
+        print(f"  A Values: {details['a_values']}")
+        print(f"  B Values: {details['b_values']}")
+
+if __name__ == "__main__":
+    main()
+```
 ### Step 9: Generating a Transformation Map
 
 Using the script, I built a transformation map that accounts for the character swapping and hashing behavior. The resulting transformation map is available here: [transformation_map.json](transformation_map.json).
+```
+{
+    "0": {
+        "changed_indices": 20,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x4c6f6e28",
+        "you_have_to_match2": "0x4c6f6e28"
+    },
+    "1": {
+        "changed_indices": 24,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xee9840ef",
+        "you_have_to_match2": "0xee9840ef"
+    },
+    "2": {
+        "changed_indices": 15,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xb0476f74",
+        "you_have_to_match2": "0xb0476f74"
+    },
+    "3": {
+        "changed_indices": 30,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x14dd3bc7",
+        "you_have_to_match2": "0x14dd3bc7"
+    },
+    "4": {
+        "changed_indices": 21,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x4312c5af",
+        "you_have_to_match2": "0x4312c5af"
+    },
+    "5": {
+        "changed_indices": 4,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x3cd56ab6",
+        "you_have_to_match2": "0x3cd56ab6"
+    },
+    "6": {
+        "changed_indices": 10,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xbfab26a6",
+        "you_have_to_match2": "0xbfab26a6"
+    },
+    "7": {
+        "changed_indices": 5,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x1e6ab55b",
+        "you_have_to_match2": "0x1e6ab55b"
+    },
+    "8": {
+        "changed_indices": 16,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xb3e0301b",
+        "you_have_to_match2": "0xb3e0301b"
+    },
+    "9": {
+        "changed_indices": 3,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x4312c5af",
+        "you_have_to_match2": "0x4312c5af"
+    },
+    "10": {
+        "changed_indices": 9,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xbaf0e1e8",
+        "you_have_to_match2": "0xbaf0e1e8"
+    },
+    "11": {
+        "changed_indices": 18,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xbfab26a6",
+        "you_have_to_match2": "0xbfab26a6"
+    },
+    "12": {
+        "changed_indices": 31,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x97329582",
+        "you_have_to_match2": "0x97329582"
+    },
+    "13": {
+        "changed_indices": 13,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xbaf0e1e8",
+        "you_have_to_match2": "0xbaf0e1e8"
+    },
+    "14": {
+        "changed_indices": 26,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xbfab26a6",
+        "you_have_to_match2": "0xbfab26a6"
+    },
+    "15": {
+        "changed_indices": 2,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x4c6f6e28",
+        "you_have_to_match2": "0x4c6f6e28"
+    },
+    "16": {
+        "changed_indices": 6,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x3cd56ab6",
+        "you_have_to_match2": "0x3cd56ab6"
+    },
+    "17": {
+        "changed_indices": 29,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xbaf0e1e8",
+        "you_have_to_match2": "0xbaf0e1e8"
+    },
+    "18": {
+        "changed_indices": 1,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x1d5c0861",
+        "you_have_to_match2": "0x1d5c0861"
+    },
+    "19": {
+        "changed_indices": 17,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x3cd56ab6",
+        "you_have_to_match2": "0x3cd56ab6"
+    },
+    "20": {
+        "changed_indices": 22,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xb3e0301b",
+        "you_have_to_match2": "0xb3e0301b"
+    },
+    "21": {
+        "changed_indices": 8,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xed3f1f80",
+        "you_have_to_match2": "0xed3f1f80"
+    },
+    "22": {
+        "changed_indices": 25,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x3cd56ab6",
+        "you_have_to_match2": "0x3cd56ab6"
+    },
+    "23": {
+        "changed_indices": 14,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xe1e5eb68",
+        "you_have_to_match2": "0xe1e5eb68"
+    },
+    "24": {
+        "changed_indices": 7,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xc06c89bf",
+        "you_have_to_match2": "0xc06c89bf"
+    },
+    "25": {
+        "changed_indices": 0,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xb62a1500",
+        "you_have_to_match2": "0xb62a1500"
+    },
+    "26": {
+        "changed_indices": 12,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xb3e0301b",
+        "you_have_to_match2": "0xb3e0301b"
+    },
+    "27": {
+        "changed_indices": 27,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xbfab26a6",
+        "you_have_to_match2": "0xbfab26a6"
+    },
+    "28": {
+        "changed_indices": 11,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x3cd56ab6",
+        "you_have_to_match2": "0x3cd56ab6"
+    },
+    "29": {
+        "changed_indices": 23,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x9d14f94b",
+        "you_have_to_match2": "0x9d14f94b"
+    },
+    "30": {
+        "changed_indices": 28,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0x9d14f94b",
+        "you_have_to_match2": "0x9d14f94b"
+    },
+    "31": {
+        "changed_indices": 19,
+        "a_values": "0x1ba09040",
+        "b_values": "0xb0476f74",
+        "you_have_to_match": "0xe864d8ce",
+        "you_have_to_match2": "0xe864d8ce"
+    }
+}
+```
 
 ### Step 10: Reversing the Hash
 
 Finally, I wrote a script to reverse the hash using the transformation map. This script reconstructs the original input that matches the expected hash values.
 
 Here is the script for reversing the hash: [flagprinter.py](flagprinter.py).
-
+```
+flag=[]
+for i in range(32):
+    for key, value in chars.items():
+        if value == matched[str(i)]["you_have_to_match"]:
+            print(key)
+            flag.append(key)
+print(''.join(flag))
+```
 ---
 
 ## Conclusion
