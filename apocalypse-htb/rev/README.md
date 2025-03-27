@@ -2,9 +2,9 @@
 layout: default
 ---
 
-- [gateway](/gateway/README)
+- [gateway](gateway/)
   
-- [imagepro](/imagepro/README)
+- [imagepro](imagepro/)
 
 
 
