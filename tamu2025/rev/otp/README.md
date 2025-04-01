@@ -1,11 +1,20 @@
 ---
 layout: default
 ---
+
 # tamu2025 - rev Challenge: otp
 
 ## Description
 
+This challenge involves reverse engineering and cryptographic analysis to extract keys and decrypt an encrypted flag. The solution uses GDB scripting to automate the extraction of keys from memory frames and applies XOR decryption to retrieve the original flag.
+
 ## Solution
+
+### GDB Script: ExtractKeys
+
+The following GDB script automates the extraction of keys from memory frames:
+
+```python
 import gdb
 import re
 
@@ -21,7 +30,7 @@ class ExtractKeys(gdb.Command):
         """
         match = re.search(r":\s+((?:0x[0-9a-f]{2}\s*)+)", line)
         if match:
-            return re.findall(r"0x([0-9a-f]{2})", match.group(1))  # Extract only byte values
+            return re.findall(r"0x([0-9a-f]{2})", match.group(1))
         return []
 
     def parse_gdb_output(self, gdb_output):
@@ -32,37 +41,31 @@ class ExtractKeys(gdb.Command):
         key_bytes = []
         for line in gdb_output.split("\n"):
             key_bytes.extend(self.parse_gdb_line(line))
-        
-        return "".join(key_bytes)  # Return as a continuous hex string
+        return "".join(key_bytes)
 
     def invoke(self, arg, from_tty):
         start_frame, end_frame = 4, 1003
-        with open("keys.txt", "w") as key_file:  # Safe file handling
-
+        with open("keys.txt", "w") as key_file:
             for frame_id in range(start_frame, end_frame + 1):
                 try:
-                    gdb.execute(f"frame {frame_id}", to_string=True)  # Switch to frame
-                    
-                    
-                    
-                    
-                    # Read exactly 'n' bytes
+                    gdb.execute(f"frame {frame_id}", to_string=True)
                     key_output = gdb.execute(f"x/59bx key", to_string=True)
-                    
-                    # Parse hex values from GDB output
                     key_hex_string = self.parse_gdb_output(key_output)
-                    
                     if key_hex_string:
                         key_file.write(key_hex_string + "\n")
-                        # print(f"[+] Extracted {n}-byte key from frame {frame_id}")
-
                 except gdb.error:
                     print(f"[-] Skipping frame {frame_id} (No key found)")
                     continue
-
         print("[✔] All keys extracted to keys.txt")
 
 ExtractKeys()
+```
+
+### Decryption Process
+
+The decryption process involves loading the encrypted flag and the extracted keys, then applying XOR decryption in reverse order:
+
+```python
 # Load the encrypted flag as a hex string
 with open("encrypted_flag.bin", "rb") as f:
     encrypted_flag = f.read().hex()
@@ -81,15 +84,19 @@ print(f"[INFO] Encrypted flag length: {flag_length} bytes")
 # Reverse the encryption process by applying XOR in reverse order
 for key in reversed(keys):
     key_bytes = bytes.fromhex(key)
-
-    # Ensure the key length matches the flag length for correct XOR
     assert len(key_bytes) == flag_length, f"Key length mismatch: Expected {flag_length}, got {len(key_bytes)}"
-
-    # Perform XOR decryption step
     encrypted_flag = bytes(a ^ b for a, b in zip(bytes.fromhex(encrypted_flag), key_bytes)).hex()
 
 # Convert final decrypted hex to a string
 decrypted_flag = bytes.fromhex(encrypted_flag).decode(errors="ignore")
 
 print(f"[+] Decrypted Flag: {decrypted_flag}")
-## Flag gigem{if_you_did_that_manually_i_am_so_sorry_for_your_loss}
+```
+
+### Flag
+
+The decrypted flag is:
+
+```
+gigem{if_you_did_that_manually_i_am_so_sorry_for_your_loss}
+```

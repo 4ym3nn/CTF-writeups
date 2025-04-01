@@ -1,11 +1,18 @@
 ---
 layout: default
 ---
+
 # tamu2025 - rev Challenge: xorox
 
 ## Description
 
+This challenge involves reverse engineering a binary to determine the required input that produces the desired output. The solution involves XOR operations and understanding the binary's constants and register values.
+
 ## Solution
+
+The following Python script demonstrates the solution:
+
+```python
 import struct
 
 # Constants from the binary
@@ -41,4 +48,12 @@ try:
     print("ASCII:", flag.decode('ascii'))
 except UnicodeDecodeError:
     print("Contains non-ASCII bytes")
-## Flag gigem{v3ry_F45t_SIMD_x0r_w1th_2_keys}
+```
+
+## Flag
+
+The flag for this challenge is:
+
+```
+gigem{v3ry_F45t_SIMD_x0r_w1th_2_keys}
+```
