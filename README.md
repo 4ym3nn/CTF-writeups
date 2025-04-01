@@ -10,14 +10,8 @@ Writeups for recent ctfs,  check out [upcoming CTF's](https://ctftime.org/event/
 ## >> [HTB-UNIVER](./HTB-CTF/README)
 ## >> [PWNME-2025](./pwnme2025/README)
 ## >> [Cyber-Apocalypse-CTF-2025](./apocalypse-htb/README)
-
-
-
-
-
-
 ## >> [tamu2025](./tamu2025/README)
-## >> [tamu2025](./tamu2025/README)
+
 {% include disqus.html %}
 
 
