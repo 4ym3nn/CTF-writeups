@@ -16,6 +16,8 @@ Writeups for recent ctfs,  check out [upcoming CTF's](https://ctftime.org/event/
 
 
 
+## >> [tamu2025](./tamu2025/README)
+## >> [tamu2025](./tamu2025/README)
 {% include disqus.html %}
 
 
