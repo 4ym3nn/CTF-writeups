@@ -1091,7 +1091,7 @@ Total instructions: 9844
 CALL operations: 4
 ```
 To reverse the VM instructions, we begin by analyzing the repeated structure of the first few lines. Here's a representative snippet:
-
+```assembely
 0000: LOAD     AAAGGAAAAA (640) ; flag[0]
 0012: PUSH     GGGTAAAAAA (106)
 0024: MUL
@@ -1099,7 +1099,7 @@ To reverse the VM instructions, we begin by analyzing the repeated structure of 
 0038: PUSH     CGTAAAAAAA (27)
 0050: MUL
 ...
-
+```
 Instruction Semantics:
 
     LOAD (addr) – pushes the value at memory[addr] (i.e., flag[i]) onto the stack.
@@ -1113,11 +1113,11 @@ Instruction Semantics:
 This pattern of LOAD, PUSH, MUL repeats 49 times, suggesting a coefficient vector Cj of length 49.
 
 Following that, we see a sequence of ADD instructions:
-
+```assembly
 1274: ADD
 1276: ADD
 ...
-
+```
 There are 48 ADD instructions, which cumulatively reduce the 49 products to a single sum.
 
 Thus, each block of operations computes:
