@@ -512,7 +512,6 @@ def unlucky0():
     nm = tmp  # Replace global nm mapping
 ```
 
-**Purpose**: Rotates the DNA character mappings: A→T→G→C→A
 ---
 
 ### unlucky[1]
@@ -591,7 +590,6 @@ def unlucky1(nm_in):
                         tmp[c] -= nm_in[s[i]]
         return tmp
 ```
-**Purpose**: Redistributes the character frequency counts using a complex subtraction pattern based on three different character orderings.
 ---
 
 ### unlucky[2]
