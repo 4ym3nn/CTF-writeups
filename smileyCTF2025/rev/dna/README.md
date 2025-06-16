@@ -74,7 +74,9 @@ this is where the interesting part comes : In all normal, not crazy VMs you’ll
 
 To decompile the .pyc file back into Python source code, I used pylingual.io.
 and this was the result :
-(main.py)[./vm.py]
+
+[here is the link to the script](./vm.py)
+
 ### Virtual Machine Overview
 
 The code defines two key data structures:
