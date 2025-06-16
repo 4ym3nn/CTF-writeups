@@ -539,67 +539,7 @@ for key in range(256):
     if isinstance(obj, types.CodeType):
         dis.dis(obj)
 ```
-and the correct key was  111 which is "o" for unluck[0]
-```
-# key=111
-# Disassembly:
-#  15           0 BUILD_MAP                0
-#               2 STORE_FAST               0 (tmp)
-
-#  16           4 LOAD_GLOBAL              0 (nm)
-#               6 LOAD_CONST               1 ('T')
-#               8 BINARY_SUBSCR
-#              10 LOAD_FAST                0 (tmp)
-#              12 LOAD_CONST               2 ('A')
-#              14 STORE_SUBSCR
-
-#  17          16 LOAD_GLOBAL              0 (nm)
-#              18 LOAD_CONST               3 ('G')
-#              20 BINARY_SUBSCR
-#              22 LOAD_FAST                0 (tmp)
-#              24 LOAD_CONST               1 ('T')
-#              26 STORE_SUBSCR
-
-#  18          28 LOAD_GLOBAL              0 (nm)
-#              30 LOAD_CONST               4 ('C')
-#              32 BINARY_SUBSCR
-#              34 LOAD_FAST                0 (tmp)
-#              36 LOAD_CONST               3 ('G')
-#              38 STORE_SUBSCR
-
-#  19          40 LOAD_GLOBAL              0 (nm)
-#              42 LOAD_CONST               2 ('A')
-#              44 BINARY_SUBSCR
-#              46 LOAD_FAST                0 (tmp)
-#              48 LOAD_CONST               4 ('C')
-#              50 STORE_SUBSCR
-
-#  20          52 LOAD_FAST                0 (tmp)
-#              54 STORE_GLOBAL             0 (nm)
-#              56 LOAD_CONST               0 (None)
-#              58 RETURN_VALUE
-```
-decompile it to python
-```python
-
-def fun1(nm_in):
-    """
-    Decompiled from snippet 1 (key = 111):
-      BUILD_MAP; tmp = {}
-      tmp['A'] = nm['T']
-      tmp['T'] = nm['G']
-      tmp['G'] = nm['C']
-      tmp['C'] = nm['A']
-      nm = tmp
-    """
-    tmp = {}
-    tmp['A'] = nm_in['T']
-    tmp['T'] = nm_in['G']
-    tmp['G'] = nm_in['C']
-    tmp['C'] = nm_in['A']
-    return tmp
-```
-i updated flag[26] to "o" and got the same error here i understand that i should do that with all unluck list starting from the begining with order because it pops the first element always after bruteforcing the keys i found this python machine code 
+and the correct key was  111 which is "o" for unluck[0] i updated flag[26] to "o" and got the same error here i understand that i should do that with all unluck list starting from the begining with order because it pops the first element always after bruteforcing the keys i found this python machine code 
 
 ### Decompiled Python Code from `unlucky` Bytecode
 
@@ -855,27 +795,38 @@ def unlucky3(nm_in):
         new_nm = MD(dict(nm_in))
         return new_nm
 ```
+```markdown
+# Run and print after each step
 
-# Run and print after each
+```python
 print("Initial nm:", nm)
 nm = unlucky0(nm)
-print("After unlucky1, nm =", nm)
+print("After unlucky0, nm =", nm)
 nm = unlucky1(nm)
-print("After unlucky2, nm =", nm)
+print("After unlucky1, nm =", nm)
 nm = unlucky2(nm)
-print("After unlucky3, nm =", nm)
+print("After unlucky2, nm =", nm)
 nm = unlucky3(nm)
-print("After unlucky4, nm =", nm)
+print("After unlucky3, nm =", nm)
 ```
 
-output:
-```
+## Output
+
+```plaintext
 Initial nm: {'A': 0, 'T': 1, 'G': 2, 'C': 3}
-After unlucky1, nm = {'A': 1, 'T': 2, 'G': 3, 'C': 0}
-After unlucky2, nm = {'A': 3, 'G': 2, 'C': 1, 'T': 0}
+After unlucky0, nm = {'A': 1, 'T': 2, 'G': 3, 'C': 0}
+After unlucky1, nm = {'A': 3, 'G': 2, 'C': 1, 'T': 0}
+After unlucky2, nm = {'A': 2, 'G': 1, 'C': 3, 'T': 0}
 After unlucky3, nm = {'A': 2, 'G': 1, 'C': 3, 'T': 0}
-After unlucky4, nm = {'A': 2, 'G': 1, 'C': 3, 'T': 0}
 ```
-so we should write assembler that for call for first time  we use unlucky1 , second time we use unlucky2 for third time we use fun3 for the fourth fun4 , and update nm as global varible 
 
-``
+## Explanation
+
+- **Initial nm**: The starting nucleotide map is `{'A': 0, 'T': 1, 'G': 2, 'C': 3}`.
+- **After unlucky0**: The nucleotide map is updated based on the first transformation function.
+- **After unlucky1**: The nucleotide map is further transformed using the second function.
+- **After unlucky2**: The third transformation function applies additional changes.
+- **After unlucky3**: The final transformation function is applied, resulting in the final nucleotide map.
+
+Each function (`unlucky0`, `unlucky1`, `unlucky2`, `unlucky3`) modifies the global `nm` variable, and the changes are printed after each step.
+```
