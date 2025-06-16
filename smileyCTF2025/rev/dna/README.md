@@ -1158,10 +1158,61 @@ Here are some of the extracted coefficient vectors:
 
 
 This structure ensures that all 49 equations can be efficiently computed using the stored coefficients.
+# DNA Virtual Machine Analysis - Unlucky Bytecode Decryption
 
-after that we need to find the sums values
+## Initial Error Investigation
 
+When running the VM with a test flag of the required 56-character length, the program crashes at the first `CALL_SNIPPET` instruction:
 
+```bash
+$ python3 v1.py vm.dna
+> .;.,;{the_secret_dna_koy_is_hiooon_horo_1234567890123aa}
+
+Traceback (most recent call last):
+  File "v1.py", line 116, in <module>
+    f.__code__ = marshal.loads(bytes([b ^ key for b in unlucky.pop(0)]))
+ValueError: bad marshal data (unknown type code)
+```
+
+After seeing this error, it suggests that the key is wrong. Let's examine where the key comes from. Looking at the assembly code before the crash:
+
+```shell
+015202: LOAD_MEM        Operand=666
+015214: CALL_SNIPPET
+```
+
+The `LOAD_MEM` with operand 666 means `m[666]` is pushed to the stack, then when `CALL_SNIPPET` executes `key = s.pop()`, this becomes our decryption key. So the key is input-determined.
+
+To find the valid key, we need to understand the memory layout:
+- Flag bytes are stored starting at memory address 640
+- Flag format removes the first 6 characters (`.;,;.{`)
+- Therefore: `key = m[666] = flag[666 - 640 + 6] = flag[32]`
+
+Since we need to find the valid key that should be at `m[666]`, we must brute force to find the correct character for `flag[32]`.
+
+## Brute Force Key Recovery
+
+Since the key must be a valid ASCII character (0-255), we can brute force all possible keys:
+
+```python
+for key in range(256):
+    try:
+        decrypted = bytes([b ^ key for b in unlucky[0]])
+        obj = marshal.loads(decrypted)
+        print(f"Key {key} ({chr(key)}): Success - {type(obj)}")
+        if isinstance(obj, types.CodeType):
+            dis.dis(obj)
+    except:
+        continue
+```
+
+**Result**: The correct key is `111` (ASCII 'o')
+
+This means `flag[26]` should be 'o' for the first bytecode to decrypt properly.
+
+## Target Values Extraction
+
+After decrypting the bytecode, we need to find the target values that the VM is checking against. The assembly shows a pattern of comparisons:
 
 ```assembly
 67774: LOAD     TTTTTTGTTT (4096) [nm: A=2,T=0,G=1,C=3]
@@ -1171,9 +1222,7 @@ after that we need to find the sums values
 67812: PUSH     AGGCATGGGA (611030) [nm: A=2,T=0,G=1,C=3]
 67824: EQ [nm: A=2,T=0,G=1,C=3]
 ```
-
 *... (continuing with similar patterns) ...*
-
 ```assembly
 68996: LOAD     TCCATTGTTT (4284) [nm: A=2,T=0,G=1,C=3]
 69008: PUSH     AAACAGATAA (665322) [nm: A=2,T=0,G=1,C=3]
@@ -1182,6 +1231,66 @@ after that we need to find the sums values
 69034: PUSH     GATATAGCAA (710793) [nm: A=2,T=0,G=1,C=3]
 69046: EQ [nm: A=2,T=0,G=1,C=3]
 ```
+
+The pattern shows:
+1. `LOAD` instruction loads a value from memory at the specified address
+2. `PUSH` instruction pushes a target value onto the stack
+3. `EQ` compares the two values and pushes 1 if equal, 0 otherwise
+
+```python
+target_values = {
+    4096: 692012,
+    4100: 611030,
+    4104: 658676,
+    4108: 556679,
+    4112: 588728,
+    4116: 628470,
+    4120: 659130,
+    4124: 623012,
+    4128: 590356,
+    4132: 670831,
+    4136: 734960,
+    4140: 694096,
+    4144: 673431,
+    4148: 676517,
+    4152: 638313,
+    4156: 730305,
+    4160: 651347,
+    4164: 612947,
+    4168: 614037,
+    4172: 722768,
+    4176: 662232,
+    4180: 608720,
+    4184: 598699,
+    4188: 626932,
+    4192: 659018,
+    4196: 554138,
+    4200: 627484,
+    4204: 620929,
+    4208: 655810,
+    4212: 598103,
+    4216: 664749,
+    4220: 772833,
+    4224: 710796,
+    4228: 669747,
+    4232: 576742,
+    4236: 715958,
+    4240: 682073,
+    4244: 687276,
+    4248: 806029,
+    4252: 660519,
+    4256: 728567,
+    4260: 689664,
+    4264: 746796,
+    4268: 597800,
+    4272: 629625,
+    4276: 585142,
+    4280: 678960,
+    4284: 665322,
+    4288: 710793
+}
+```
+
 
 ## Verification Logic
 
@@ -1274,64 +1383,6 @@ Prints "CORRECT!" - ASCII values `[67, 79, 82, 82, 69, 67, 84, 33]`
 69406: HALT [nm: A=2,T=0,G=1,C=3]
 ```
 
-## Target Values Extraction
-
-We need to extract the 49 target values for the system of equations:
-
-```python
-target_values = {
-    4096: 692012,
-    4100: 611030,
-    4104: 658676,
-    4108: 556679,
-    4112: 588728,
-    4116: 628470,
-    4120: 659130,
-    4124: 623012,
-    4128: 590356,
-    4132: 670831,
-    4136: 734960,
-    4140: 694096,
-    4144: 673431,
-    4148: 676517,
-    4152: 638313,
-    4156: 730305,
-    4160: 651347,
-    4164: 612947,
-    4168: 614037,
-    4172: 722768,
-    4176: 662232,
-    4180: 608720,
-    4184: 598699,
-    4188: 626932,
-    4192: 659018,
-    4196: 554138,
-    4200: 627484,
-    4204: 620929,
-    4208: 655810,
-    4212: 598103,
-    4216: 664749,
-    4220: 772833,
-    4224: 710796,
-    4228: 669747,
-    4232: 576742,
-    4236: 715958,
-    4240: 682073,
-    4244: 687276,
-    4248: 806029,
-    4252: 660519,
-    4256: 728567,
-    4260: 689664,
-    4264: 746796,
-    4268: 597800,
-    4272: 629625,
-    4276: 585142,
-    4280: 678960,
-    4284: 665322,
-    4288: 710793
-}
-```
-
 ## System of Equations
 
 We need to solve the system:
@@ -1346,7 +1397,7 @@ To ensure that the 49 equations are linearly independent, we need to verify the 
 >>> 
 ```
 
-Since \( \text{det}(A) \neq 0 \), the matrix \( A \) is invertible, and the system of equations can be solved directly. Below is the Python script used to solve the system:
+Since ```Det(A) != 0``` then A is invertible, and the system of equations can be solved directly. Below is the Python script used to solve the system:
 
 ```python
 
