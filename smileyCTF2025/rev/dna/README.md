@@ -13,7 +13,7 @@ deoxy ribo nucleic acid deoxy meaning without oxygen ribo meaning the 5-carbon s
 ## Initial Recon
 
 We start by looking at the challenge directory:
-```shell
+```bash
 ➜  dna ls
 main.cpython-310.pyc  vm.dna
 ➜  dna 
@@ -79,7 +79,7 @@ this is where the interesting part comes : In all normal, not crazy VMs you’ll
 To decompile the .pyc file back into Python source code, I used pylingual.io.
 and this was the result :
 
-[here is the link to the script](./vm.py)
+[main.py](./vm.py)
 
 ### Virtual Machine Overview
 ```python
@@ -421,7 +421,7 @@ ValueError: bad marshal data (unknown type code)
 
 After seeing this error, it suggests that the key is wrong. Let's examine where the key comes from. Looking at the assembly code before the crash:
 
-```shell
+```assembely
 015202: LOAD_MEM        Operand=666
 015214: CALL_SNIPPET
 ```
@@ -717,7 +717,7 @@ def unlucky3(nm_in):
         return new_nm
 ```
 
-[here is the link to the script](./nmExctrator.py)
+[nmExctractor](./nmExctrator.py)
 
 ```python
 print("Initial nm:", nm)
@@ -753,7 +753,7 @@ Each function (`unlucky0`, `unlucky1`, `unlucky2`, `unlucky3`) modifies the glob
 
 Before starting to write the assembler, I manually verified the state of the `nm` mapping after each `CALL` instruction (opcode 13). This was done by checking the operand of the `LOAD` instruction preceding each `CALL`. Below are the results of the dynamic disassembly:
 
-```shell
+```bash
 ➜  sol awk '/CALL/ {  print lines[NR-1]; print } { lines[NR] = $0 }' asm.txt 
 
 === DYNAMIC DISASSEMBLY ===
@@ -793,7 +793,7 @@ flag[33]=97
 ### Next Steps
 Using the above observations, I will proceed to write the assembler, ensuring that the dynamic changes to the `nm` mapping are accounted for at each step.
 
-python assembler
+python disassembler
 
 ```python
 
@@ -1011,12 +1011,42 @@ CALL operations: 4
 ```
 To reverse the VM instructions, we begin by analyzing the repeated structure of the first few lines. Here's a representative snippet:
 ```assembely
-0000: LOAD     AAAGGAAAAA (640) ; flag[0]
-0012: PUSH     GGGTAAAAAA (106)
-0024: MUL
-0026: LOAD     TAAGGAAAAA (641) ; flag[1]
-0038: PUSH     CGTAAAAAAA (27)
-0050: MUL
+0000: LOAD     AAAGGAAAAA (640) ; flag[0] [nm: A=0,T=1,G=2,C=3]
+0012: PUSH     GGGTAAAAAA (106) [nm: A=0,T=1,G=2,C=3]
+0024: MUL [nm: A=0,T=1,G=2,C=3]
+0026: LOAD     TAAGGAAAAA (641) ; flag[1] [nm: A=0,T=1,G=2,C=3]
+0038: PUSH     CGTAAAAAAA (27) [nm: A=0,T=1,G=2,C=3]
+0050: MUL [nm: A=0,T=1,G=2,C=3]
+0052: LOAD     GAAGGAAAAA (642) ; flag[2] [nm: A=0,T=1,G=2,C=3]
+0064: PUSH     ACAGAAAAAA (140) [nm: A=0,T=1,G=2,C=3]
+0076: MUL [nm: A=0,T=1,G=2,C=3]
+0078: LOAD     CAAGGAAAAA (643) ; flag[3] [nm: A=0,T=1,G=2,C=3]
+0090: PUSH     GGAGAAAAAA (138) [nm: A=0,T=1,G=2,C=3]
+0102: MUL [nm: A=0,T=1,G=2,C=3]
+0104: LOAD     ATAGGAAAAA (644) ; flag[4] [nm: A=0,T=1,G=2,C=3]
+0116: PUSH     ACGTAAAAAA (108) [nm: A=0,T=1,G=2,C=3]
+0128: MUL [nm: A=0,T=1,G=2,C=3]
+0130: LOAD     TTAGGAAAAA (645) ; flag[5] [nm: A=0,T=1,G=2,C=3]
+0142: PUSH     CGTTAAAAAA (91) [nm: A=0,T=1,G=2,C=3]
+0154: MUL [nm: A=0,T=1,G=2,C=3]
+0156: LOAD     GTAGGAAAAA (646) ; flag[6] [nm: A=0,T=1,G=2,C=3]
+0168: PUSH     CAAGAAAAAA (131) [nm: A=0,T=1,G=2,C=3]
+0180: MUL [nm: A=0,T=1,G=2,C=3]
+0182: LOAD     CTAGGAAAAA (647) ; flag[7] [nm: A=0,T=1,G=2,C=3]
+0194: PUSH     GGAGAAAAAA (138) [nm: A=0,T=1,G=2,C=3]
+0206: MUL [nm: A=0,T=1,G=2,C=3]
+0208: LOAD     AGAGGAAAAA (648) ; flag[8] [nm: A=0,T=1,G=2,C=3]
+0220: PUSH     GGGTAAAAAA (106) [nm: A=0,T=1,G=2,C=3]
+0232: MUL [nm: A=0,T=1,G=2,C=3]
+0234: LOAD     TGAGGAAAAA (649) ; flag[9] [nm: A=0,T=1,G=2,C=3]
+0246: PUSH     CCCTAAAAAA (127) [nm: A=0,T=1,G=2,C=3]
+0258: MUL [nm: A=0,T=1,G=2,C=3]
+0260: LOAD     GGAGGAAAAA (650) ; flag[10] [nm: A=0,T=1,G=2,C=3]
+0272: PUSH     TAGGAAAAAA (161) [nm: A=0,T=1,G=2,C=3]
+0284: MUL [nm: A=0,T=1,G=2,C=3]
+0286: LOAD     CGAGGAAAAA (651) ; flag[11] [nm: A=0,T=1,G=2,C=3]
+0298: PUSH     CACTAAAAAA (115) [nm: A=0,T=1,G=2,C=3]
+0310: MUL [nm: A=0,T=1,G=2,C=3]
 ...
 ```
 Instruction Semantics:
@@ -1033,15 +1063,42 @@ This pattern of LOAD, PUSH, MUL repeats 49 times, suggesting a coefficient vecto
 
 Following that, we see a sequence of ADD instructions:
 ```assembly
-1274: ADD
-1276: ADD
+1274: ADD [nm: A=0,T=1,G=2,C=3]
+1276: ADD [nm: A=0,T=1,G=2,C=3]
+1278: ADD [nm: A=0,T=1,G=2,C=3]
+1280: ADD [nm: A=0,T=1,G=2,C=3]
+1282: ADD [nm: A=0,T=1,G=2,C=3]
+1284: ADD [nm: A=0,T=1,G=2,C=3]
+1286: ADD [nm: A=0,T=1,G=2,C=3]
+1288: ADD [nm: A=0,T=1,G=2,C=3]
+1290: ADD [nm: A=0,T=1,G=2,C=3]
+1292: ADD [nm: A=0,T=1,G=2,C=3]
+1294: ADD [nm: A=0,T=1,G=2,C=3]
+1296: ADD [nm: A=0,T=1,G=2,C=3]
+1298: ADD [nm: A=0,T=1,G=2,C=3]
+1300: ADD [nm: A=0,T=1,G=2,C=3]
+1302: ADD [nm: A=0,T=1,G=2,C=3]
+1304: ADD [nm: A=0,T=1,G=2,C=3]
+1306: ADD [nm: A=0,T=1,G=2,C=3]
+1308: ADD [nm: A=0,T=1,G=2,C=3]
+1310: ADD [nm: A=0,T=1,G=2,C=3]
+1312: ADD [nm: A=0,T=1,G=2,C=3]
+1314: ADD [nm: A=0,T=1,G=2,C=3]
+1316: ADD [nm: A=0,T=1,G=2,C=3]
+1318: ADD [nm: A=0,T=1,G=2,C=3]
+1320: ADD [nm: A=0,T=1,G=2,C=3]
+1322: ADD [nm: A=0,T=1,G=2,C=3]
+1324: ADD [nm: A=0,T=1,G=2,C=3]
 ...
 ```
 There are 48 ADD instructions, which cumulatively reduce the 49 products to a single sum.
 
 Thus, each block of operations computes:
 
-sum_{i=0}^{48} flag[i] × Cj[i]
+$$
+\sum_{i=0}^{48} \text{flag}[i] \times C_j[i]
+$$
+
 
 This entire process is repeated 49 times, meaning the index j ranges from 0 to 48. For each repetition, a new coefficient vector Cj is used, so we must extract all 49 coefficient vectors C₀, C₁, ..., C₄₈.
 
@@ -1137,18 +1194,19 @@ Here are some of the extracted coefficient vectors:
     ```
     [149, 104, 66, 72, 140, 134, 140, 174, 236, 10, 209, 162, 15, 223, 191, 183, 77, 137, 106, 69, 54, 1, 122, 195, 62, 99, 155, 10, 18, 117, 164, 216, 231, 150, 255, 127, 193, 145, 190, 34, 46, 64, 189, 182, 27, 163, 156, 156, 150]
     ```
+...
 
 - **C₄₈ (memory[4288]):**
     ```
     [10, 177, 31, 35, 108, 132, 53, 119, 122, 72, 51, 62, 160, 167, 251, 191, 245, 142, 79, 235, 184, 142, 194, 218, 240, 66, 226, 179, 125, 18, 246, 234, 25, 56, 4, 240, 215, 214, 42, 143, 32, 87, 5, 215, 62, 231, 179, 186, 219]
     ```
 
-#### Observations
 - Each coefficient vector is used in one of the 49 equations.
 - The equations are structured as:
-    ```
-    sum_{i=0}^{48} flag[i] × Cj[i]
-    ```
+$$
+\sum_{i=0}^{48} \text{flag}[i] \times C_j[i]
+$$
+
     where `Cj` is the coefficient vector for the j-th equation.
 
 #### Memory Addressing
@@ -1160,59 +1218,7 @@ Here are some of the extracted coefficient vectors:
 
 
 This structure ensures that all 49 equations can be efficiently computed using the stored coefficients.
-# DNA Virtual Machine Analysis - Unlucky Bytecode Decryption
-
-## Initial Error Investigation
-
-When running the VM with a test flag of the required 56-character length, the program crashes at the first `CALL_SNIPPET` instruction:
-
-```bash
-$ python3 v1.py vm.dna
-> .;.,;{the_secret_dna_koy_is_hiooon_horo_1234567890123aa}
-
-Traceback (most recent call last):
-  File "v1.py", line 116, in <module>
-    f.__code__ = marshal.loads(bytes([b ^ key for b in unlucky.pop(0)]))
-ValueError: bad marshal data (unknown type code)
-```
-
-After seeing this error, it suggests that the key is wrong. Let's examine where the key comes from. Looking at the assembly code before the crash:
-
-```shell
-015202: LOAD_MEM        Operand=666
-015214: CALL_SNIPPET
-```
-
-The `LOAD_MEM` with operand 666 means `m[666]` is pushed to the stack, then when `CALL_SNIPPET` executes `key = s.pop()`, this becomes our decryption key. So the key is input-determined.
-
-To find the valid key, we need to understand the memory layout:
-- Flag bytes are stored starting at memory address 640
-- Flag format removes the first 6 characters (`.;,;.{`)
-- Therefore: `key = m[666] = flag[666 - 640 + 6] = flag[32]`
-
-Since we need to find the valid key that should be at `m[666]`, we must brute force to find the correct character for `flag[32]`.
-
-## Brute Force Key Recovery
-
-Since the key must be a valid ASCII character (0-255), we can brute force all possible keys:
-
-```python
-for key in range(256):
-    try:
-        decrypted = bytes([b ^ key for b in unlucky[0]])
-        obj = marshal.loads(decrypted)
-        print(f"Key {key} ({chr(key)}): Success - {type(obj)}")
-        if isinstance(obj, types.CodeType):
-            dis.dis(obj)
-    except:
-        continue
-```
-
-**Result**: The correct key is `111` (ASCII 'o')
-
-This means `flag[26]` should be 'o' for the first bytecode to decrypt properly.
-
-## Target Values Extraction
+#### Observations## Target Values Extraction
 
 After decrypting the bytecode, we need to find the target values that the VM is checking against. The assembly shows a pattern of comparisons:
 
