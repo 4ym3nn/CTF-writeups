@@ -11,7 +11,7 @@ deoxy ribo nucleic acid deoxy meaning without oxygen ribo meaning the 5-carbon s
 ## Initial Recon
 
 We start by looking at the challenge directory:
-```
+```shell
 ➜  dna ls
 main.cpython-310.pyc  vm.dna
 ➜  dna 
