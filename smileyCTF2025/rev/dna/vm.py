@@ -17,7 +17,6 @@ code = open(sys.argv[1]).read()
 flag = input('> ').encode()
 if len(flag)!= 56:
     exit('WRONG!')
-# .;,;.{the_secret_dna_koy_is_hiooon_horo_1234567890123aa}
 if flag[:6]!= b'.;,;.{':
     exit('WRONG!')
 if flag[(-1)]!= 125:
@@ -27,8 +26,6 @@ for i in range(len(flag)):
     m[640 + i] = flag[i]
     
 pc = 0
-se=set()
-
 while pc < len(code):
     opcode, operand = map(trans, [code[pc:pc + 2], code[pc + 2:pc + 12]])
     match opcode:
