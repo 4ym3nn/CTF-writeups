@@ -797,9 +797,9 @@ def unlucky3(nm_in):
         new_nm = MD(dict(nm_in))
         return new_nm
 ```
-```markdown
-# Run and print after each step
+
 [nm](./nmExtractor.py)
+
 ```python
 print("Initial nm:", nm)
 nm = unlucky0(nm)
