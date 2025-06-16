@@ -601,520 +601,281 @@ def fun1(nm_in):
 ```
 i updated flag[26] to "o" and got the same error here i understand that i should do that with all unluck list starting from the begining with order because it pops the first element always after bruteforcing the keys i found this python machine code 
 
+### Decompiled Python Code from `unlucky` Bytecode
+
+#### unlucky[0]
+**Python Bytecode:**
+```python
+    15           0 BUILD_MAP                0
+                             2 STORE_FAST               0 (tmp)
+
+    16           4 LOAD_GLOBAL              0 (nm)
+                             6 LOAD_CONST               1 ('T')
+                             8 BINARY_SUBSCR
+                            10 LOAD_FAST                0 (tmp)
+                            12 LOAD_CONST               2 ('A')
+                            14 STORE_SUBSCR
+
+    17          16 LOAD_GLOBAL              0 (nm)
+                            18 LOAD_CONST               3 ('G')
+                            20 BINARY_SUBSCR
+                            22 LOAD_FAST                0 (tmp)
+                            24 LOAD_CONST               1 ('T')
+                            26 STORE_SUBSCR
+
+    18          28 LOAD_GLOBAL              0 (nm)
+                            30 LOAD_CONST               4 ('C')
+                            32 BINARY_SUBSCR
+                            34 LOAD_FAST                0 (tmp)
+                            36 LOAD_CONST               3 ('G')
+                            38 STORE_SUBSCR
+
+    19          40 LOAD_GLOBAL              0 (nm)
+                            42 LOAD_CONST               2 ('A')
+                            44 BINARY_SUBSCR
+                            46 LOAD_FAST                0 (tmp)
+                            48 LOAD_CONST               4 ('C')
+                            50 STORE_SUBSCR
+
+    20          52 LOAD_FAST                0 (tmp)
+                            54 STORE_GLOBAL             0 (nm)
+                            56 LOAD_CONST               0 (None)
+                            58 RETURN_VALUE
 ```
-# unlucky[0] :
-# key=111
-# Disassembly:
-#  15           0 BUILD_MAP                0
-#               2 STORE_FAST               0 (tmp)
 
-#  16           4 LOAD_GLOBAL              0 (nm)
-#               6 LOAD_CONST               1 ('T')
-#               8 BINARY_SUBSCR
-#              10 LOAD_FAST                0 (tmp)
-#              12 LOAD_CONST               2 ('A')
-#              14 STORE_SUBSCR
-
-#  17          16 LOAD_GLOBAL              0 (nm)
-#              18 LOAD_CONST               3 ('G')
-#              20 BINARY_SUBSCR
-#              22 LOAD_FAST                0 (tmp)
-#              24 LOAD_CONST               1 ('T')
-#              26 STORE_SUBSCR
-
-#  18          28 LOAD_GLOBAL              0 (nm)
-#              30 LOAD_CONST               4 ('C')
-#              32 BINARY_SUBSCR
-#              34 LOAD_FAST                0 (tmp)
-#              36 LOAD_CONST               3 ('G')
-#              38 STORE_SUBSCR
-
-#  19          40 LOAD_GLOBAL              0 (nm)
-#              42 LOAD_CONST               2 ('A')
-#              44 BINARY_SUBSCR
-#              46 LOAD_FAST                0 (tmp)
-#              48 LOAD_CONST               4 ('C')
-#              50 STORE_SUBSCR
-
-#  20          52 LOAD_FAST                0 (tmp)
-#              54 STORE_GLOBAL             0 (nm)
-#              56 LOAD_CONST               0 (None)
-#              58 RETURN_VALUE
-# unlucky[1] :
-# key=117
-# # Disassembly:
-# Disassembly:
-#  24           0 LOAD_CONST               1 ('AGCT')
-#               2 STORE_FAST               0 (s1)
-
-#  25           4 LOAD_CONST               2 ('TCAG')
-#               6 STORE_FAST               1 (s2)
-
-#  26           8 LOAD_CONST               3 ('CTGA')
-#              10 STORE_FAST               2 (s3)
-
-#  27          12 LOAD_CONST               4 (<code object unlucky at 0x7f621747f470, file "<unlucky>", line 27>)
-#              14 LOAD_CONST               5 ('unlucky_2.<locals>.<dictcomp>')
-#              16 MAKE_FUNCTION            0
-#              18 LOAD_FAST                0 (s1)
-#              20 GET_ITER
-#              22 CALL_FUNCTION            1
-#              24 STORE_FAST               3 (tmp)
-
-#  28          26 LOAD_FAST                0 (s1)
-#              28 LOAD_FAST                1 (s2)
-#              30 LOAD_FAST                2 (s3)
-#              32 BUILD_TUPLE              3
-#              34 GET_ITER
-#         >>   36 FOR_ITER                27 (to 92)
-#              38 STORE_FAST               4 (s)
-
-#  29          40 LOAD_GLOBAL              0 (enumerate)
-#              42 LOAD_GLOBAL              1 (sorted)
-#              44 LOAD_GLOBAL              2 (nm)
-#              46 LOAD_METHOD              3 (keys)
-#              48 CALL_METHOD              0
-#              50 CALL_FUNCTION            1
-#              52 CALL_FUNCTION            1
-#              54 GET_ITER
-#         >>   56 FOR_ITER                16 (to 90)
-#              58 UNPACK_SEQUENCE          2
-#              60 STORE_FAST               5 (i)
-#              62 STORE_FAST               6 (c)
-
-#  30          64 LOAD_FAST                3 (tmp)
-#              66 LOAD_FAST                6 (c)
-#              68 DUP_TOP_TWO
-#              70 BINARY_SUBSCR
-#              72 LOAD_GLOBAL              2 (nm)
-#              74 LOAD_FAST                4 (s)
-#              76 LOAD_FAST                5 (i)
-#              78 BINARY_SUBSCR
-#              80 BINARY_SUBSCR
-#              82 INPLACE_SUBTRACT
-#              84 ROT_THREE
-#              86 STORE_SUBSCR
-#              88 JUMP_ABSOLUTE           28 (to 56)
-
-#  29     >>   90 JUMP_ABSOLUTE           18 (to 36)
-
-#  31     >>   92 LOAD_FAST                3 (tmp)
-#              94 STORE_GLOBAL             2 (nm)
-#              96 LOAD_CONST               0 (None)
-#              98 RETURN_VALUE
-
-# Disassembly of <code object unlucky at 0x7f621747f470, file "<unlucky>", line 27>:
-#  27           0 BUILD_MAP                0
-#               2 LOAD_FAST                0 (.0)
-#         >>    4 FOR_ITER                 9 (to 24)
-#               6 STORE_FAST               1 (c)
-#               8 LOAD_FAST                1 (c)
-#              10 LOAD_GLOBAL              0 (sum)
-#              12 LOAD_GLOBAL              1 (nm)
-#              14 LOAD_METHOD              2 (values)
-#              16 CALL_METHOD              0
-#              18 CALL_FUNCTION            1
-#              20 MAP_ADD                  2
-#              22 JUMP_ABSOLUTE            2 (to 4)
-#         >>   24 RETURN_VALUE
-#unlucky[2]:
-# key=105
-# Disassembly:
-# Disassembly://///////////////
-#  35           0 LOAD_GLOBAL              0 (__import__)
-#               2 LOAD_CONST               1 ('random')
-#               4 CALL_FUNCTION            1
-#               6 STORE_DEREF              0 (r)
-
-#  36           8 LOAD_DEREF               0 (r)
-#              10 LOAD_METHOD              1 (seed)
-#              12 LOAD_GLOBAL              0 (__import__)
-#              14 LOAD_CONST               2 ('functools')
-#              16 CALL_FUNCTION            1
-#              18 LOAD_METHOD              2 (reduce)
-#              20 LOAD_CONST               3 (<code object unlucky at 0x7faa1587f470, file "<unlucky>", line 36>)
-#              22 LOAD_CONST               4 ('unlucky_3.<locals>.<lambda>')
-#              24 MAKE_FUNCTION            0
-#              26 LOAD_GLOBAL              3 (nm)
-#              28 LOAD_METHOD              4 (values)
-#              30 CALL_METHOD              0
-#              32 CALL_METHOD              2
-#              34 CALL_METHOD              1
-#              36 POP_TOP
-
-#  37          38 LOAD_BUILD_CLASS
-#              40 LOAD_CLOSURE             0 (r)
-#              42 BUILD_TUPLE              1
-#              44 LOAD_CONST               5 (<code object unlucky at 0x7faa1589e8c0, file "<unlucky>", line 37>)
-#              46 LOAD_CONST               6 ('unlucky')
-#              48 MAKE_FUNCTION            8 (closure)
-#              50 LOAD_CONST               6 ('unlucky')
-#              52 LOAD_GLOBAL              5 (dict)
-#              54 CALL_FUNCTION            3
-#              56 STORE_FAST               0 (unlucky)
-
-#  53          58 LOAD_FAST                0 (unlucky)
-#              60 LOAD_GLOBAL              3 (nm)
-#              62 CALL_FUNCTION            1
-#              64 STORE_GLOBAL             3 (nm)
-#              66 LOAD_CONST               0 (None)
-#              68 RETURN_VALUE
-
-# Disassembly of <code object unlucky at 0x7faa1587f470, file "<unlucky>", line 36>:
-#  36           0 LOAD_FAST                0 (x)
-#               2 LOAD_FAST                1 (y)
-#               4 BINARY_XOR
-#               6 RETURN_VALUE
-
-# Disassembly of <code object unlucky at 0x7faa1589e8c0, file "<unlucky>", line 37>:
-#  37           0 LOAD_NAME                0 (__name__)
-#               2 STORE_NAME               1 (__module__)
-#               4 LOAD_CONST               0 ('unlucky_3.<locals>.unlucky')
-#               6 STORE_NAME               2 (__qualname__)
-
-#  38           8 LOAD_CLOSURE             0 (__class__)
-#              10 LOAD_CLOSURE             1 (r)
-#              12 BUILD_TUPLE              2
-#              14 LOAD_CONST               1 (<code object unlucky at 0x7faa1589c500, file "<unlucky>", line 38>)
-#              16 LOAD_CONST               2 ('unlucky_3.<locals>.unlucky.__init__')
-#              18 MAKE_FUNCTION            8 (closure)
-#              20 STORE_NAME               3 (__init__)
-
-#  45          22 LOAD_CLOSURE             0 (__class__)
-#              24 BUILD_TUPLE              1
-#              26 LOAD_CONST               3 (<code object unlucky at 0x7faa1589e810, file "<unlucky>", line 45>)
-#              28 LOAD_CONST               4 ('unlucky_3.<locals>.unlucky.__getitem__')
-#              30 MAKE_FUNCTION            8 (closure)
-#              32 STORE_NAME               4 (__getitem__)
-#              34 LOAD_CLOSURE             0 (__class__)
-#              36 DUP_TOP
-#              38 STORE_NAME               5 (__classcell__)
-#              40 RETURN_VALUE
-
-# Disassembly of <code object unlucky at 0x7faa1589c500, file "<unlucky>", line 38>:
-#  39           0 LOAD_GLOBAL              0 (super)
-#               2 CALL_FUNCTION            0
-#               4 LOAD_METHOD              1 (__init__)
-#               6 LOAD_FAST                1 (mapping)
-#               8 CALL_METHOD              1
-#              10 POP_TOP
-
-#  40          12 LOAD_GLOBAL              2 (list)
-#              14 LOAD_CONST               1 ('ACGT')
-#              16 CALL_FUNCTION            1
-#              18 STORE_FAST               2 (keys)
-
-#  41          20 LOAD_DEREF               1 (r)
-#              22 LOAD_METHOD              3 (shuffle)
-#              24 LOAD_FAST                2 (keys)
-#              26 CALL_METHOD              1
-#              28 POP_TOP
-
-#  42          30 LOAD_GLOBAL              4 (range)
-#              32 LOAD_CONST               2 (4)
-#              34 CALL_FUNCTION            1
-#              36 GET_ITER
-#         >>   38 FOR_ITER                12 (to 64)
-#              40 STORE_FAST               3 (i)
-
-#  43          42 LOAD_FAST                1 (mapping)
-#              44 LOAD_FAST                2 (keys)
-#              46 LOAD_FAST                3 (i)
-#              48 BINARY_SUBSCR
-#              50 BINARY_SUBSCR
-#              52 LOAD_FAST                0 (self)
-#              54 LOAD_CONST               1 ('ACGT')
-#              56 LOAD_FAST                3 (i)
-#              58 BINARY_SUBSCR
-#              60 STORE_SUBSCR
-#              62 JUMP_ABSOLUTE           19 (to 38)
-
-#  42     >>   64 LOAD_CONST               0 (None)
-#              66 RETURN_VALUE
-
-# Disassembly of <code object unlucky at 0x7faa1589e810, file "<unlucky>", line 45>:
-#  46           0 LOAD_GLOBAL              0 (__import__)
-#               2 LOAD_CONST               1 ('random')
-#               4 CALL_FUNCTION            1
-#               6 STORE_FAST               2 (hlib)
-
-#  47           8 LOAD_GLOBAL              0 (__import__)
-#              10 LOAD_CONST               2 ('hashlib')
-#              12 CALL_FUNCTION            1
-#              14 STORE_FAST               3 (rlib)
-
-#  48          16 NOP
-
-#  49     >>   18 LOAD_FAST                2 (hlib)
-#              20 LOAD_METHOD              1 (randbytes)
-#              22 LOAD_CONST               4 (32)
-#              24 CALL_METHOD              1
-#              26 STORE_FAST               4 (b)
-
-#  50          28 LOAD_GLOBAL              2 (all)
-#              30 LOAD_CLOSURE             0 (key)
-#              32 BUILD_TUPLE              1
-#              34 LOAD_CONST               5 (<code object unlucky at 0x7faa1589c3a0, file "<unlucky>", line 50>)
-#              36 LOAD_CONST               6 ('unlucky_3.<locals>.unlucky.__getitem__.<locals>.<genexpr>')
-#              38 MAKE_FUNCTION            8 (closure)
-#              40 LOAD_FAST                3 (rlib)
-#              42 LOAD_METHOD              3 (sha256)
-#              44 LOAD_FAST                4 (b)
-#              46 CALL_METHOD              1
-#              48 LOAD_METHOD              4 (digest)
-#              50 CALL_METHOD              0
-#              52 LOAD_CONST               0 (None)
-#              54 LOAD_CONST               7 (1)
-#              56 BUILD_SLICE              2
-#              58 BINARY_SUBSCR
-#              60 GET_ITER
-#              62 CALL_FUNCTION            1
-#              64 CALL_FUNCTION            1
-#              66 POP_JUMP_IF_FALSE       40 (to 80)
-
-#  51          68 LOAD_GLOBAL              5 (super)
-#              70 CALL_FUNCTION            0
-#              72 LOAD_METHOD              6 (__getitem__)
-#              74 LOAD_DEREF               0 (key)
-#              76 CALL_METHOD              1
-#              78 RETURN_VALUE
-
-#  48     >>   80 JUMP_ABSOLUTE            9 (to 18)
-
-# Disassembly of <code object unlucky at 0x7faa1589c3a0, file "<unlucky>", line 50>:
-#               0 GEN_START                0
-
-#  50           2 LOAD_FAST                0 (.0)
-#         >>    4 FOR_ITER                 9 (to 24)
-#               6 STORE_FAST               1 (x)
-#               8 LOAD_FAST                1 (x)
-#              10 LOAD_GLOBAL              0 (ord)
-#              12 LOAD_DEREF               0 (key)
-#              14 CALL_FUNCTION            1
-#              16 COMPARE_OP               2 (==)
-#              18 YIELD_VALUE
-#              20 POP_TOP
-#              22 JUMP_ABSOLUTE            2 (to 4)
-#         >>   24 LOAD_CONST               0 (None)
-#              26 RETURN_VALUE
-unlucky[3]
-# key =97 
-# Disassembly://///////////////
-#  58           0 LOAD_BUILD_CLASS
-#               2 LOAD_CONST               1 (<code object unlucky at 0x7faf1a5a03a0, file "<unlucky>", line 58>)
-#               4 LOAD_CONST               2 ('MM')
-#               6 MAKE_FUNCTION            0
-#               8 LOAD_CONST               2 ('MM')
-#              10 LOAD_GLOBAL              0 (type)
-#              12 CALL_FUNCTION            3
-#              14 STORE_FAST               0 (MM)
-
-#  70          16 LOAD_BUILD_CLASS
-#              18 LOAD_CONST               3 (<code object unlucky at 0x7faf1a5a2810, file "<unlucky>", line 70>)
-#              20 LOAD_CONST               4 ('MD')
-#              22 MAKE_FUNCTION            0
-#              24 LOAD_CONST               4 ('MD')
-#              26 LOAD_GLOBAL              1 (dict)
-#              28 LOAD_FAST                0 (MM)
-#              30 LOAD_CONST               5 (('metaclass',))
-#              32 CALL_FUNCTION_KW         4
-#              34 STORE_FAST               1 (MD)
-
-#  73          36 LOAD_GLOBAL              2 (exec)
-#              38 LOAD_CONST               6 ("globals()['nucleotide_map'] = MD(")
-#              40 LOAD_GLOBAL              1 (dict)
-#              42 LOAD_GLOBAL              3 (nm)
-#              44 CALL_FUNCTION            1
-#              46 FORMAT_VALUE             0
-#              48 LOAD_CONST               7 (')')
-#              50 BUILD_STRING             3
-#              52 CALL_FUNCTION            1
-#              54 POP_TOP
-#              56 LOAD_CONST               0 (None)
-#              58 RETURN_VALUE
-
-# Disassembly of <code object unlucky at 0x7faf1a5a03a0, file "<unlucky>", line 58>:
-#  58           0 LOAD_NAME                0 (__name__)
-#               2 STORE_NAME               1 (__module__)
-#               4 LOAD_CONST               0 ('unlucky_4.<locals>.MM')
-#               6 STORE_NAME               2 (__qualname__)
-
-#  59           8 LOAD_CLOSURE             0 (__class__)
-#              10 BUILD_TUPLE              1
-#              12 LOAD_CONST               1 (<code object unlucky at 0x7faf1a5833c0, file "<unlucky>", line 59>)
-#              14 LOAD_CONST               2 ('unlucky_4.<locals>.MM.__new__')
-#              16 MAKE_FUNCTION            8 (closure)
-#              18 STORE_NAME               3 (__new__)
-
-#  62          20 LOAD_CLOSURE             0 (__class__)
-#              22 BUILD_TUPLE              1
-#              24 LOAD_CONST               3 (<code object unlucky at 0x7faf1a5a0500, file "<unlucky>", line 62>)
-#              26 LOAD_CONST               4 ('unlucky_4.<locals>.MM.__call__')
-#              28 MAKE_FUNCTION            8 (closure)
-#              30 STORE_NAME               4 (__call__)
-#              32 LOAD_CLOSURE             0 (__class__)
-#              34 DUP_TOP
-#              36 STORE_NAME               5 (__classcell__)
-#              38 RETURN_VALUE
-
-# Disassembly of <code object unlucky at 0x7faf1a5833c0, file "<unlucky>", line 59>:
-#  60           0 LOAD_GLOBAL              0 (super)
-#               2 CALL_FUNCTION            0
-#               4 LOAD_METHOD              1 (__new__)
-#               6 LOAD_FAST                0 (cls)
-#               8 LOAD_FAST                1 (name)
-#              10 LOAD_FAST                2 (bases)
-#              12 LOAD_FAST                3 (dct)
-#              14 CALL_METHOD              4
-#              16 RETURN_VALUE
-
-# Disassembly of <code object unlucky at 0x7faf1a5a0500, file "<unlucky>", line 62>:
-#  63           0 LOAD_GLOBAL              0 (super)
-#               2 CALL_FUNCTION            0
-#               4 LOAD_ATTR                1 (__call__)
-#               6 LOAD_FAST                1 (args)
-#               8 BUILD_MAP                0
-#              10 LOAD_FAST                2 (kwargs)
-#              12 DICT_MERGE               1
-#              14 CALL_FUNCTION_EX         1
-#              16 STORE_FAST               3 (instance)
-
-#  64          18 LOAD_GLOBAL              2 (list)
-#              20 LOAD_FAST                3 (instance)
-#              22 LOAD_METHOD              3 (values)
-#              24 CALL_METHOD              0
-#              26 CALL_FUNCTION            1
-#              28 STORE_FAST               4 (vals)
-
-#  65          30 LOAD_FAST                4 (vals)
-#              32 LOAD_CONST               0 (None)
-#              34 LOAD_CONST               0 (None)
-#              36 LOAD_CONST               1 (2)
-#              38 BUILD_SLICE              3
-#              40 BINARY_SUBSCR
-#              42 LOAD_FAST                4 (vals)
-#              44 LOAD_CONST               2 (1)
-#              46 LOAD_CONST               0 (None)
-#              48 LOAD_CONST               1 (2)
-#              50 BUILD_SLICE              3
-#              52 BINARY_SUBSCR
-#              54 BINARY_ADD
-#              56 STORE_FAST               4 (vals)
-
-#  66          58 LOAD_GLOBAL              4 (enumerate)
-#              60 LOAD_GLOBAL              5 (sorted)
-#              62 LOAD_FAST                3 (instance)
-#              64 LOAD_METHOD              6 (keys)
-#              66 CALL_METHOD              0
-#              68 CALL_FUNCTION            1
-#              70 CALL_FUNCTION            1
-#              72 GET_ITER
-#         >>   74 FOR_ITER                10 (to 96)
-#              76 UNPACK_SEQUENCE          2
-#              78 STORE_FAST               5 (i)
-#              80 STORE_FAST               6 (k)
-
-#  67          82 LOAD_FAST                4 (vals)
-#              84 LOAD_FAST                5 (i)
-#              86 BINARY_SUBSCR
-#              88 LOAD_FAST                3 (instance)
-#              90 LOAD_FAST                6 (k)
-#              92 STORE_SUBSCR
-#              94 JUMP_ABSOLUTE           37 (to 74)
-
-#  68     >>   96 LOAD_FAST                3 (instance)
-#              98 RETURN_VALUE
-
-# Disassembly of <code object unlucky at 0x7faf1a5a2810, file "<unlucky>", line 70>:
-#  70           0 LOAD_NAME                0 (__name__)
-#               2 STORE_NAME               1 (__module__)
-#               4 LOAD_CONST               0 ('unlucky_4.<locals>.MD')
-#               6 STORE_NAME               2 (__qualname__)
-
-#  71           8 LOAD_CONST               1 (None)
-#              10 RETURN_VALUE decompile those 4 snippets seperatly to python code```
+**Decompiled Python Code:**
+```python
+def unlucky0(nm_in):
+        tmp = {}
+        tmp['A'] = nm_in['T']
+        tmp['T'] = nm_in['G']
+        tmp['G'] = nm_in['C']
+        tmp['C'] = nm_in['A']
+        return tmp
 ```
-when i decompiled it
+
+---
+
+#### unlucky[1]
+**Python Bytecode:**
+```python
+    24           0 LOAD_CONST               1 ('AGCT')
+                             2 STORE_FAST               0 (s1)
+
+    25           4 LOAD_CONST               2 ('TCAG')
+                             6 STORE_FAST               1 (s2)
+
+    26           8 LOAD_CONST               3 ('CTGA')
+                            10 STORE_FAST               2 (s3)
+
+    27          12 LOAD_CONST               4 (<code object unlucky at 0x...>)
+                            14 LOAD_CONST               5 ('unlucky_2.<locals>.<dictcomp>')
+                            16 MAKE_FUNCTION            0
+                            18 LOAD_FAST                0 (s1)
+                            20 GET_ITER
+                            22 CALL_FUNCTION            1
+                            24 STORE_FAST               3 (tmp)
+
+    28          26 LOAD_FAST                0 (s1)
+                            28 LOAD_FAST                1 (s2)
+                            30 LOAD_FAST                2 (s3)
+                            32 BUILD_TUPLE              3
+                            34 GET_ITER
+                 >>   36 FOR_ITER                27 (to 92)
+                            38 STORE_FAST               4 (s)
+
+    29          40 LOAD_GLOBAL              0 (enumerate)
+                            42 LOAD_GLOBAL              1 (sorted)
+                            44 LOAD_GLOBAL              2 (nm)
+                            46 LOAD_METHOD              3 (keys)
+                            48 CALL_METHOD              0
+                            50 CALL_FUNCTION            1
+                            52 CALL_FUNCTION            1
+                            54 GET_ITER
+                 >>   56 FOR_ITER                16 (to 90)
+                            58 UNPACK_SEQUENCE          2
+                            60 STORE_FAST               5 (i)
+                            62 STORE_FAST               6 (c)
+
+    30          64 LOAD_FAST                3 (tmp)
+                            66 LOAD_FAST                6 (c)
+                            68 DUP_TOP_TWO
+                            70 BINARY_SUBSCR
+                            72 LOAD_GLOBAL              2 (nm)
+                            74 LOAD_FAST                4 (s)
+                            76 LOAD_FAST                5 (i)
+                            78 BINARY_SUBSCR
+                            80 BINARY_SUBSCR
+                            82 INPLACE_SUBTRACT
+                            84 ROT_THREE
+                            86 STORE_SUBSCR
+                            88 JUMP_ABSOLUTE           28 (to 56)
+
+    29     >>   90 JUMP_ABSOLUTE           18 (to 36)
+
+    31     >>   92 LOAD_FAST                3 (tmp)
+                            94 STORE_GLOBAL             2 (nm)
+                            96 LOAD_CONST               0 (None)
+                            98 RETURN_VALUE
 ```
-import random
-import functools
-import hashlib
 
-# Initial nucleotide map
-nm = {'A': 0, 'T': 1, 'G': 2, 'C': 3}
+**Decompiled Python Code:**
+```python
+def unlucky1(nm_in):
+        s1 = "AGCT"
+        s2 = "TCAG"
+        s3 = "CTGA"
+        total = sum(nm_in.values())
+        tmp = {c: total for c in s1}
+        for s in (s1, s2, s3):
+                for i, c in enumerate(sorted(nm_in.keys())):
+                        tmp[c] -= nm_in[s[i]]
+        return tmp
+```
 
-def fun1(nm_in):
-    tmp = {}
-    tmp['A'] = nm_in['T']
-    tmp['T'] = nm_in['G']
-    tmp['G'] = nm_in['C']
-    tmp['C'] = nm_in['A']
-    return tmp
+---
 
-def fun2(nm_in):
-    s1 = "AGCT"
-    s2 = "TCAG"
-    s3 = "CTGA"
-    total = sum(nm_in.values())
-    tmp = {c: total for c in s1}
-    for s in (s1, s2, s3):
-        for i, c in enumerate(sorted(nm_in.keys())):
-            tmp[c] -= nm_in[s[i]]
-    return tmp
+#### unlucky[2]
+**Python Bytecode:**
+```python
+    35           0 LOAD_GLOBAL              0 (__import__)
+                             2 LOAD_CONST               1 ('random')
+                             4 CALL_FUNCTION            1
+                             6 STORE_DEREF              0 (r)
 
-def fun3(nm_in):
-    seed = 0
-    for v in nm_in.values():
-        seed ^= v
-    random.seed(seed)
-    class Unlucky(dict):
-        def __init__(self, mapping):
-            super().__init__(mapping)
-            keys = list("ACGT")
-            random.shuffle(keys)
-            for i in range(4):
-                self["ACGT"[i]] = mapping[keys[i]]
-    new_nm = Unlucky(nm_in)
-    return new_nm
+    36           8 LOAD_DEREF               0 (r)
+                            10 LOAD_METHOD              1 (seed)
+                            12 LOAD_GLOBAL              0 (__import__)
+                            14 LOAD_CONST               2 ('functools')
+                            16 CALL_FUNCTION            1
+                            18 LOAD_METHOD              2 (reduce)
+                            20 LOAD_CONST               3 (<code object unlucky at 0x...>)
+                            22 LOAD_CONST               4 ('unlucky_3.<locals>.<lambda>')
+                            24 MAKE_FUNCTION            0
+                            26 LOAD_GLOBAL              3 (nm)
+                            28 LOAD_METHOD              4 (values)
+                            30 CALL_METHOD              0
+                            32 CALL_METHOD              2
+                            34 CALL_METHOD              1
+                            36 POP_TOP
 
-def fun4(nm_in):
-    class MM(type):
-        def __new__(cls, name, bases, dct):
-            return super().__new__(cls, name, bases, dct)
-        def __call__(cls, *args, **kwargs):
-            instance = super().__call__(*args, **kwargs)
-            vals = list(instance.values())
-            vals = vals[::2] + vals[1::2]
-            for i, k in enumerate(sorted(instance.keys())):
-                instance[k] = vals[i]
-            return instance
+    37          38 LOAD_BUILD_CLASS
+                            40 LOAD_CLOSURE             0 (r)
+                            42 BUILD_TUPLE              1
+                            44 LOAD_CONST               5 (<code object unlucky at 0x...>)
+                            46 LOAD_CONST               6 ('unlucky')
+                            48 MAKE_FUNCTION            8 (closure)
+                            50 LOAD_CONST               6 ('unlucky')
+                            52 LOAD_GLOBAL              5 (dict)
+                            54 CALL_FUNCTION            3
+                            56 STORE_FAST               0 (unlucky)
 
-    class MD(dict, metaclass=MM):
-        pass
+    53          58 LOAD_FAST                0 (unlucky)
+                            60 LOAD_GLOBAL              3 (nm)
+                            62 CALL_FUNCTION            1
+                            64 STORE_GLOBAL             3 (nm)
+                            66 LOAD_CONST               0 (None)
+                            68 RETURN_VALUE
+```
 
-    new_nm = MD(dict(nm_in))
-    return new_nm
+**Decompiled Python Code:**
+```python
+def unlucky2(nm_in):
+        seed = 0
+        for v in nm_in.values():
+                seed ^= v
+        random.seed(seed)
+        class Unlucky(dict):
+                def __init__(self, mapping):
+                        super().__init__(mapping)
+                        keys = list("ACGT")
+                        random.shuffle(keys)
+                        for i in range(4):
+                                self["ACGT"[i]] = mapping[keys[i]]
+        new_nm = Unlucky(nm_in)
+        return new_nm
+```
+
+---
+
+#### unlucky[3]
+**Python Bytecode:**
+```python
+    58           0 LOAD_BUILD_CLASS
+                             2 LOAD_CONST               1 (<code object unlucky at 0x...>)
+                             4 LOAD_CONST               2 ('MM')
+                             6 MAKE_FUNCTION            0
+                             8 LOAD_CONST               2 ('MM')
+                            10 LOAD_GLOBAL              0 (type)
+                            12 CALL_FUNCTION            3
+                            14 STORE_FAST               0 (MM)
+
+    70          16 LOAD_BUILD_CLASS
+                            18 LOAD_CONST               3 (<code object unlucky at 0x...>)
+                            20 LOAD_CONST               4 ('MD')
+                            22 MAKE_FUNCTION            0
+                            24 LOAD_CONST               4 ('MD')
+                            26 LOAD_GLOBAL              1 (dict)
+                            28 LOAD_FAST                0 (MM)
+                            30 LOAD_CONST               5 (('metaclass',))
+                            32 CALL_FUNCTION_KW         4
+                            34 STORE_FAST               1 (MD)
+
+    73          36 LOAD_GLOBAL              2 (exec)
+                            38 LOAD_CONST               6 ("globals()['nucleotide_map'] = MD(")
+                            40 LOAD_GLOBAL              1 (dict)
+                            42 LOAD_GLOBAL              3 (nm)
+                            44 CALL_FUNCTION            1
+                            46 FORMAT_VALUE             0
+                            48 LOAD_CONST               7 (')')
+                            50 BUILD_STRING             3
+                            52 CALL_FUNCTION            1
+                            54 POP_TOP
+                            56 LOAD_CONST               0 (None)
+                            58 RETURN_VALUE
+```
+
+**Decompiled Python Code:**
+```python
+def unlucky3(nm_in):
+        class MM(type):
+                def __new__(cls, name, bases, dct):
+                        return super().__new__(cls, name, bases, dct)
+                def __call__(cls, *args, **kwargs):
+                        instance = super().__call__(*args, **kwargs)
+                        vals = list(instance.values())
+                        vals = vals[::2] + vals[1::2]
+                        for i, k in enumerate(sorted(instance.keys())):
+                                instance[k] = vals[i]
+                        return instance
+
+        class MD(dict, metaclass=MM):
+                pass
+
+        new_nm = MD(dict(nm_in))
+        return new_nm
+```
 
 # Run and print after each
 print("Initial nm:", nm)
-nm = fun1(nm)
-print("After fun1, nm =", nm)
-nm = fun2(nm)
-print("After fun2, nm =", nm)
-nm = fun3(nm)
-print("After fun3, nm =", nm)
-nm = fun4(nm)
-print("After fun4, nm =", nm)
+nm = unlucky0(nm)
+print("After unlucky1, nm =", nm)
+nm = unlucky1(nm)
+print("After unlucky2, nm =", nm)
+nm = unlucky2(nm)
+print("After unlucky3, nm =", nm)
+nm = unlucky3(nm)
+print("After unlucky4, nm =", nm)
 ```
 
 output:
 ```
 Initial nm: {'A': 0, 'T': 1, 'G': 2, 'C': 3}
-After fun1, nm = {'A': 1, 'T': 2, 'G': 3, 'C': 0}
-After fun2, nm = {'A': 3, 'G': 2, 'C': 1, 'T': 0}
-After fun3, nm = {'A': 2, 'G': 1, 'C': 3, 'T': 0}
-After fun4, nm = {'A': 2, 'G': 1, 'C': 3, 'T': 0}
+After unlucky1, nm = {'A': 1, 'T': 2, 'G': 3, 'C': 0}
+After unlucky2, nm = {'A': 3, 'G': 2, 'C': 1, 'T': 0}
+After unlucky3, nm = {'A': 2, 'G': 1, 'C': 3, 'T': 0}
+After unlucky4, nm = {'A': 2, 'G': 1, 'C': 3, 'T': 0}
 ```
-so we should write assembler that for call for first time  we use fun1 , second time we use fun2 for third time we use fun3 for the fourth fun4 , and update nm as global varible 
+so we should write assembler that for call for first time  we use unlucky1 , second time we use unlucky2 for third time we use fun3 for the fourth fun4 , and update nm as global varible 
 
 ``
