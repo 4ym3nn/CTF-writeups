@@ -1421,20 +1421,16 @@ We need to solve the system:
 ```
 memory[i] * flag[i] == target_values[i]
 ```
+To ensure that the 49 equations are linearly independent, we need to verify the determinant of the coefficient matrix \( A \). If the determinant is non-zero, the system of equations is solvable.
 
-To get exactly 49 variables, the 49 equations must be linearly independent, which should be verified.
-let us check it 
-```try:
-    f = np.linalg.solve(A, b)   # if A is invertible
-    print("Matrix A is invertible, proceeding with direct solve.")
-    method = "direct solve"
+```python
+>>> np.linalg.det(A)
+7.002684569518382e+123
+>>> 
 ```
-and yes it prints it is invertable so we can solve for them
-```
-Matrix A is invertible, proceeding with direct solve.
-Solution method: direct solve
-```
-(System solver)[./systemSolver.py]
+
+Since \( \text{det}(A) \neq 0 \), the matrix \( A \) is invertible, and the system of equations can be solved directly. Below is the Python script used to solve the system:
+
 ```python
 
 import numpy as np

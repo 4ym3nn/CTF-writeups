@@ -107,7 +107,10 @@ b = np.array([m[a] for a in addrs], dtype=float)
 
 
 try:
-    f = np.linalg.solve(A, b)   
+    if np.linalg.det(A) != 0:
+        f = np.linalg.solve(A, b)
+    else:
+        raise np.linalg.LinAlgError("Matrix A is not invertible.")
     print("Matrix A is invertible, proceeding with direct solve.")
     method = "direct solve"
 except np.linalg.LinAlgError:
