@@ -98,26 +98,27 @@ m[4276] = 585142
 m[4280] = 678960
 m[4284] = 665322
 m[4288] = 710793
-import numpy as np
-# 2) Build matrix A and vector b
-addrs = sorted(memory.keys())
-A = np.vstack([memory[a] for a in addrs])    # shape (49,49)
-b = np.array([m[a] for a in addrs], dtype=float)  # shape (49,)
 
-# 3) Try a direct solve
+import numpy as np
+
+addrs = sorted(memory.keys())
+A = np.vstack([memory[a] for a in addrs])    
+b = np.array([m[a] for a in addrs], dtype=float)  
+
+
 try:
-    f = np.linalg.solve(A, b)   # if A is invertible
+    f = np.linalg.solve(A, b)   
     print("Matrix A is invertible, proceeding with direct solve.")
     method = "direct solve"
 except np.linalg.LinAlgError:
-    # fallback to least‐squares
+    
     f, residuals, rank, s = np.linalg.lstsq(A, b, rcond=None)
     method = f"least-squares (rank {rank})"
 
-# 4) Round to nearest integer (if you expect integer bytes)
+
 f_int = np.rint(f).astype(int)
 
-# 5) Print results
+
 print(f"Solution method: {method}")
 print("Flag bytes:", f_int.tolist())
 print("As ASCII:  ", ''.join(chr(v) for v in f_int))

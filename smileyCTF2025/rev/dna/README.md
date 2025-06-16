@@ -872,8 +872,9 @@ Based on the disassembly:
 
 ### Next Steps
 Using the above observations, I will proceed to write the assembler, ensuring that the dynamic changes to the `nm` mapping are accounted for at each step.
-```
+
 python assembler
+
 
 ```python
 
@@ -1193,8 +1194,8 @@ equations = parse_assembly_equations(lines)
 print(len(equations), "equations found:")
 for eq_number, eq in equations:
     print(f"Equation stored at {eq_number}: {eq}")
+```
 ### Coefficient Vectors (Cj)
-
 The coefficient vectors (Cj) of length 49 for each j ranging from 0 to 48 were extracted. These coefficients are stored in memory starting at address `4096`, with each vector occupying 4 consecutive memory slots. Below is the result:
 
 #### Memory Layout for Coefficient Vectors
@@ -1434,7 +1435,7 @@ Matrix A is invertible, proceeding with direct solve.
 Solution method: direct solve
 ```
 (System solver)[./systemSolver.py]
-```
+```python
 
 import numpy as np
 
@@ -1463,7 +1464,7 @@ if 'residuals' in locals():
     print("Residual norm²:", residuals)
 ```
 and the output was :
-```
+```python
 Flag bytes: [119, 101, 95, 111, 117, 103, 104, 116, 95, 116, 111, 95, 115, 116, 97, 114, 116, 95, 115, 116, 111, 114, 105, 110, 103, 95, 111, 117, 114, 95, 100, 97, 116, 97, 95, 97, 115, 95, 100, 110, 97, 95, 105, 110, 115, 116, 101, 97, 100]
 As ASCII:   we_ought_to_start_storing_our_data_as_dna_instead
 ```
