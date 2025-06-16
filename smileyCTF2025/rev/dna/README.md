@@ -472,16 +472,18 @@ case 15:  # HALT
 For a while, I thought the main challenge was to reverse-engineer the virtual machine (VM) itself. So I ran the VM (v1.py) using Python 3.10 and provided a flag input of length 56, as required.
 
 ###  Error Trace
-
+**input**
 ```shell
 (venv) ➔  dna python3 v1.py vm.dna
 > .;.,;{the_secret_dna_koy_is_hiooon_horo_1234567890123aa}
+```
+**stderror**
+```shell
 Traceback (most recent call last):
   File "/mnt/default-linux/CTFS/smiley/chall1/dna/v1.py", line 116, in <module>
     f.__code__ = marshal.loads(bytes([b ^ key for b in unlucky.pop(0)]))
                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ValueError: bad marshal data (unknown type code)
-(venv) ➔  dna
 ```
 
 ---
@@ -506,7 +508,7 @@ pc += 2
 Key: 101
 ```
 which is
-```" .;.,;{the_secret_dna_key_is_hidden_here_1234567890123aa}"[26+6]===chr(101)=="o"```
+```m[666]==input[26+6]==flag[26]==chr(101)=="e"```
 --- 
 
 ### Analysis
@@ -514,7 +516,7 @@ which is
 * `s.pop()` equals `101` (which comes from `m[666]`)
 * In assembler version 0, the first call where the error happens is:
 
-```
+```shell
 015202: LOAD_MEM        Operand=666
 015214: CALL_SNIPPET
 ```
