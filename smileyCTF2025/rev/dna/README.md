@@ -3,6 +3,7 @@ layout: default
 ---
 # smileyCTF2025 - rev Challenge: dna
 ## Flag : .;,;.{we_ought_to_start_storing_our_data_as_dna_instead}
+![image](https://github.com/user-attachments/assets/2a754db6-1251-435e-95e1-7e020437b0f0)
 
 # Description
 deoxy ribo nucleic acid deoxy meaning without oxygen ribo meaning the 5-carbon sugar backbone nucleic meaning of the nucleus acid meaning proton donor
