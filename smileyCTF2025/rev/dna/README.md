@@ -31,7 +31,9 @@ When it comes to a virtual CPU (machine), it may or may not have a move instruct
 ### How Do Virtual Machines Work?
 
 Since a virtual machine is trying to emulate some new instruction set, it’ll need to have a CPU that will be able to decode those set of instructions and for that all virtual machines implement their own virtual CPU. How do we do that? Well, a CPU is just a bunch of registers and some helper units.
-!(vm)[./abasiccomputer.gif] 
+
+![image](./abasiccomputer.gif)
+
 A virtual CPU is much similar to a physical CPU. It’ll have it’s own set of registers and cache and all. A simple implementation in code will look something like this
 ```python
 class RegID(IntEnum):
