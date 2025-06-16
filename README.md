@@ -13,6 +13,7 @@ Writeups for recent ctfs,  check out [upcoming CTF's](https://ctftime.org/event/
 ## >> [Cyber-Apocalypse-CTF-2025](./apocalypse-htb/README)
 ## >> [tamu2025](./tamu2025/README)
 
+## >> [smileyCTF2025](./smileyCTF2025/README)
 {% include disqus.html %}
 
 
