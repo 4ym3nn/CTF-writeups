@@ -1203,6 +1203,7 @@ Here are some of the extracted coefficient vectors:
 
 - Each coefficient vector is used in one of the 49 equations.
 - The equations are structured as:
+
 $$
 \sum_{i=0}^{48} \text{flag}[i] \times C_j[i]
 $$
@@ -1391,52 +1392,93 @@ Prints "CORRECT!" - ASCII values `[67, 79, 82, 82, 69, 67, 84, 33]`
 69406: HALT [nm: A=2,T=0,G=1,C=3]
 ```
 
-## System of Equations
+# Solving a System of Linear Equations
 
-We need to solve the system:
-```
-memory[i] * flag[i] == target_values[i]
-```
-To ensure that the 49 equations are linearly independent, we need to verify the determinant of the coefficient matrix \( A \). If the determinant is non-zero, the system of equations is solvable.
+## Problem Formulation
+
+We are given a system of equations of the form:
+$$\sum_{j=0}^{48} \text{flag}[j] \cdot C_j[i] = m[i] \quad \text{for } i = 0, 1, \dots, 48$$
+
+This can be interpreted as a matrix equation:
+$$\mathbf{C} \cdot \mathbf{f} = \mathbf{m}$$
+
+Where:
+- $\mathbf{C}$ is a $49 \times 49$ matrix, with $C_j[i]$ representing the coefficient in row $i$, column $j$
+- $\mathbf{f}$ is a column vector of length 49 representing the flag values: $[\text{flag}[0], \text{flag}[1], \dots, \text{flag}[48]]^T$
+- $\mathbf{m}$ is the column vector of resulting values: $[m[0], m[1], \dots, m[48]]^T$
+
+## Solution Methodology
+![image](https://github.com/user-attachments/assets/fc76c895-50c8-4fcd-b304-0bdd6641a286)
+
+**to solve the System**:
+   we now need to solve:
+
+   $$
+   \mathbf{C} \cdot \mathbf{f} = \mathbf{m}
+   $$
+
+   To find \$\mathbf{f}\$ (i.e., the flag):
+
+   * **Exact Arithmetic (e.g., Modular Inverse)** :
+
+$$
+     \mathbf{f} = \mathbf{C}^{-1} \cdot \mathbf{m} \mod 256
+$$
+
+---
+
+
+### Step 3: Verify System Solvability
+
+To ensure that the 49 equations are linearly independent, we verify the determinant of the coefficient matrix $\mathbf{C}$. If the determinant is non-zero, the system has a unique solution.
 
 ```python
 >>> np.linalg.det(A)
 7.002684569518382e+123
->>> 
 ```
 
-Since ```Det(A) != 0``` then A is invertible, and the system of equations can be solved directly. Below is the Python script used to solve the system:
+Since $\det(\mathbf{C}) \neq 0$, matrix $\mathbf{C}$ is invertible and the system can be solved directly.
+
+## Implementation
+
+The following Python script solves the system:
 
 ```python
-
 import numpy as np
 
+# Construct coefficient matrix and target vector
 addrs = sorted(memory.keys())
 A = np.vstack([memory[a] for a in addrs])    
 b = np.array([m[a] for a in addrs], dtype=float)  
 
-
+# Solve the linear system
 try:
     f = np.linalg.solve(A, b)   
     print("Matrix A is invertible, proceeding with direct solve.")
     method = "direct solve"
 except np.linalg.LinAlgError:
-    
+    # Fallback to least-squares if matrix is singular
     f, residuals, rank, s = np.linalg.lstsq(A, b, rcond=None)
     method = f"least-squares (rank {rank})"
 
-
+# Convert to integer values
 f_int = np.rint(f).astype(int)
 
-
+# Display results
 print(f"Solution method: {method}")
 print("Flag bytes:", f_int.tolist())
-print("As ASCII:  ", ''.join(chr(v) for v in f_int))
+print("As ASCII:", ''.join(chr(v) for v in f_int))
+
 if 'residuals' in locals():
     print("Residual norm²:", residuals)
 ```
-and the output was :
-```python
-Flag bytes: [119, 101, 95, 111, 117, 103, 104, 116, 95, 116, 111, 95, 115, 116, 97, 114, 116, 95, 115, 116, 111, 114, 105, 110, 103, 95, 111, 117, 114, 95, 100, 97, 116, 97, 95, 97, 115, 95, 100, 110, 97, 95, 105, 110, 115, 116, 101, 97, 100]
-As ASCII:   we_ought_to_start_storing_our_data_as_dna_instead
-```
+
+## Results
+
+The solution yields the following flag values:
+
+**Flag bytes**: `[119, 101, 95, 111, 117, 103, 104, 116, 95, 116, 111, 95, 115, 116, 97, 114, 116, 95, 115, 116, 111, 114, 105, 110, 103, 95, 111, 117, 114, 95, 100, 97, 116, 97, 95, 97, 115, 95, 100, 110, 97, 95, 105, 110, 115, 116, 101, 97, 100]`
+
+**ASCII representation**: `we_ought_to_start_storing_our_data_as_dna_instead`
+
+The direct matrix solution method successfully recovered the flag, demonstrating that the system was well-conditioned and had a unique solution.
