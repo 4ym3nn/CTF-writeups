@@ -431,7 +431,7 @@ To find the valid key, we need to understand the memory layout:
 
 Since we need to find the valid key that should be at `m[666]`, we must brute force to find the correct character for `flag[32]`.
 
-## Brute Force Key Recovery
+### Brute Force Key Recovery
 
 Since the key must be a valid ASCII character (0-255), we can brute force all possible keys:
 
@@ -459,9 +459,9 @@ Since `unlucky.pop(0)` consumes elements sequentially, we need to:
 3. Repeat for all four bytecode snippets
 
 
-### Decompiled Python Code from `unlucky` Bytecode
+## Decompiled Python Code from `unlucky` Bytecode
 
-#### unlucky[0]
+### unlucky[0]
 **Python Bytecode:**
 ```python
     15           0 BUILD_MAP                0
@@ -515,7 +515,7 @@ def unlucky0():
 **Purpose**: Rotates the DNA character mappings: A→T→G→C→A
 ---
 
-#### unlucky[1]
+### unlucky[1]
 **Python Bytecode:**
 ```python
     24           0 LOAD_CONST               1 ('AGCT')
@@ -594,7 +594,7 @@ def unlucky1(nm_in):
 **Purpose**: Redistributes the character frequency counts using a complex subtraction pattern based on three different character orderings.
 ---
 
-#### unlucky[2]
+### unlucky[2]
 **Python Bytecode:**
 ```python
     35           0 LOAD_GLOBAL              0 (__import__)
@@ -657,7 +657,7 @@ def unlucky2(nm_in):
 
 ---
 
-#### unlucky[3]
+### unlucky[3]
 **Python Bytecode:**
 ```python
     58           0 LOAD_BUILD_CLASS
