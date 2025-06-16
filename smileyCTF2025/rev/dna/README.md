@@ -797,7 +797,7 @@ def unlucky3(nm_in):
 ```
 ```markdown
 # Run and print after each step
-
+[nm](./nmExtractor.py)
 ```python
 print("Initial nm:", nm)
 nm = unlucky0(nm)
@@ -829,4 +829,641 @@ After unlucky3, nm = {'A': 2, 'G': 1, 'C': 3, 'T': 0}
 - **After unlucky3**: The final transformation function is applied, resulting in the final nucleotide map.
 
 Each function (`unlucky0`, `unlucky1`, `unlucky2`, `unlucky3`) modifies the global `nm` variable, and the changes are printed after each step.
+```
+```markdown
+Before starting to write the assembler, I manually verified the state of the `nm` mapping after each `CALL` instruction (opcode 13). This was done by checking the operand of the `LOAD` instruction preceding each `CALL`. Below are the results of the dynamic disassembly:
+
+```shell
+➜  sol awk '/CALL/ {  print lines[NR-1]; print } { lines[NR] = $0 }' asm.txt 
+
+=== DYNAMIC DISASSEMBLY ===
+DEBUG: After CALL #1, nm updated to: {'A': 1, 'T': 2, 'G': 3, 'C': 0}
+DEBUG: After CALL #1, nm updated to: {'A': 1, 'T': 2, 'G': 3, 'C': 0}
+DEBUG: After CALL #2, nm updated to: {'A': 3, 'G': 2, 'C': 1, 'T': 0}
+DEBUG: After CALL #2, nm updated to: {'A': 3, 'G': 2, 'C': 1, 'T': 0}
+DEBUG: After CALL #3, nm updated to: {'A': 2, 'G': 1, 'C': 3, 'T': 0}
+DEBUG: After CALL #3, nm updated to: {'A': 2, 'G': 1, 'C': 3, 'T': 0}
+DEBUG: After CALL #4, nm updated to: {'A': 2, 'G': 1, 'C': 3, 'T': 0}
+==================================================
+Nucleotide mappings change after each CALL instruction
+15202: LOAD     GGTGGAAAAA (666) ; debug marker [nm: A=0,T=1,G=2,C=3]
+15214: CALL     ; will change nucleotide mapping [nm: A=0,T=1,G=2,C=3]
+30418: LOAD     GTATTCCCCC (667) ; flag[27] [nm: A=1,T=2,G=3,C=0]
+30430: CALL     ; will change nucleotide mapping [nm: A=1,T=2,G=3,C=0]
+45634: LOAD     GCCGGTTTTT (662) ; flag[22] [nm: A=3,T=0,G=2,C=1]
+45646: CALL     ; will change nucleotide mapping [nm: A=3,T=0,G=2,C=1]
+60850: LOAD     GTAAATTTTT (673) ; flag[33] [nm: A=2,T=0,G=1,C=3]
+60862: CALL     ; will change nucleotide mapping [nm: A=2,T=0,G=1,C=3]
+Total instructions: 9844
+CALL operations: 4
+➜  sol 
+```
+
+### Observations
+- The `nm` mapping changes dynamically after each `CALL` instruction.
+- The `LOAD` instruction preceding each `CALL` provides the operand, which corresponds to a specific memory address or flag index.
+
+### Key Values
+Based on the disassembly:
+- `m[640 + 26] = 111` (ASCII for 'o')
+- `m[640 + 27] = 117` (ASCII for 'u')
+- `m[640 + 22] = 105` (ASCII for 'i')
+- `m[640 + 33] = 97` (ASCII for 'a')
+
+### Next Steps
+Using the above observations, I will proceed to write the assembler, ensuring that the dynamic changes to the `nm` mapping are accounted for at each step.
+```
+python assembler
+
+```python
+
+
+import sys
+from typing import List, Tuple, Dict
+
+class DynamicDNADisassembler:
+    def __init__(self):
+        
+        self.initial_nm = {'A': 0, 'T': 1, 'G': 2, 'C': 3}
+        
+        
+        self.instructions = {
+            0: "PUSH",      
+            1: "POP",       
+            2: "LOAD",      
+            3: "STORE",     
+            4: "ADD",       
+            5: "SUB",       
+            6: "MUL",       
+            7: "MOD",       
+            8: "EQ",        
+            9: "JMP",       
+            10: "JEQ",      
+            11: "JNE",      
+            12: "PRINT",    
+            13: "CALL",     
+            14: "SWAP",     
+            15: "HALT"      
+        }
+        
+        
+        self.mapping_transforms = {
+            
+            111: {'A': 1, 'T': 2, 'G': 3, 'C': 0},
+            
+            117: {'A': 3, 'G': 2, 'C': 1, 'T': 0},
+            
+            105: {'A': 2, 'G': 1, 'C': 3, 'T': 0}
+        }
+        
+        
+        self.predefined_values = {22: 105, 26: 111, 27: 117}
+    
+    def trans(self, dna_sequence: str, nm: Dict[str, int]) -> int:
+        return sum((nm[c] << 2 * i for i, c in enumerate(dna_sequence)))
+    
+    def reverse_trans(self, value: int, length: int) -> str:
+        nucleotides = ['A', 'T', 'G', 'C']
+        result = []
+        for i in range(length):
+            result.append(nucleotides[(value >> (2 * i)) & 3])
+        return ''.join(result)
+    
+    def predict_call_key(self, instructions_so_far: List, current_stack: List[int]) -> int:
+        
+        for addr, instr, operand_dna, operand in reversed(instructions_so_far[-10:]):
+            if instr == "LOAD" and operand in self.predefined_values:
+                return self.predefined_values[operand]
+        
+        
+        return None
+    
+    def disassemble_dynamic(self, code: str) -> List[Tuple[int, str, str, int, Dict[str, int]]]:
+        instructions = []
+        pc = 0
+        current_nm = self.initial_nm.copy()
+        call_count = 0
+        
+        while pc < len(code):
+            
+            if pc + 2 > len(code):
+                break
+                
+            opcode_dna = code[pc:pc + 2]
+            opcode = self.trans(opcode_dna, current_nm)
+            
+            
+            if opcode in [1, 4, 5, 6, 7, 8, 12, 13, 14, 15]:
+                
+                operand_dna = ""
+                operand = 0
+                instruction_length = 2
+            else:
+                
+                if pc + 12 > len(code):
+                    break
+                operand_dna = code[pc + 2:pc + 12]
+                operand = self.trans(operand_dna, current_nm)
+                instruction_length = 12
+            
+            
+            instr_name = self.instructions.get(opcode, f"UNKNOWN_{opcode}")
+            
+            
+            instructions.append((pc, instr_name, operand_dna, operand, current_nm.copy()))
+            
+            
+            if instr_name == "CALL":
+                call_count += 1
+                
+                predicted_key = None
+                
+                
+                if call_count == 1:
+                    predicted_key = 111
+                elif call_count == 2:
+                    predicted_key = 117
+                elif call_count >= 3:
+                    predicted_key = 105
+                
+                if predicted_key and predicted_key in self.mapping_transforms:
+                    current_nm = self.mapping_transforms[predicted_key].copy()
+                    print(f"DEBUG: After CALL #{call_count}, nm updated to: {current_nm}")
+            
+            pc += instruction_length
+        
+        return instructions
+    
+    def format_instruction_dynamic(self, addr: int, instr: str, operand_dna: str, 
+                                 operand: int, nm: Dict[str, int], call_count: int = 0) -> str:
+        addr_str = f"{addr:04d}"
+        
+        
+        nm_str = f"[nm: A={nm['A']},T={nm['T']},G={nm['G']},C={nm['C']}]"
+        
+        if operand_dna:
+            base_str = f"{addr_str}: {instr:<8} {operand_dna} ({operand})"
+            
+            if instr in ["LOAD", "STORE"]:
+                if operand == 666:
+                    base_str += " ; debug marker"
+                elif operand >= 640 and operand < 696:
+                    base_str += f" ; flag[{operand-640}]"
+                elif operand in [22, 26, 27]:
+                    value = self.predefined_values.get(operand, "unknown")
+                    base_str += f" ; predefined value={value}"
+            return f"{base_str} {nm_str}"
+        else:
+            
+            if instr == "CALL":
+                return f"{addr_str}: {instr:<8} ; will change nucleotide mapping {nm_str}"
+            return f"{addr_str}: {instr} {nm_str}"
+    
+    def disassemble_file_dynamic(self, filename: str) -> str:
+        try:
+            with open(filename, 'r') as f:
+                code = f.read().strip()
+        except FileNotFoundError:
+            return f"Error: File '{filename}' not found"
+        except Exception as e:
+            return f"Error reading file: {e}"
+        
+        instructions = self.disassemble_dynamic(code)
+        
+        if not instructions:
+            return "No valid instructions found"
+        
+        
+        output_lines = []
+        output_lines.append("Dynamic DNA Virtual Machine Disassembly")
+        output_lines.append("=" * 50)
+        output_lines.append("Nucleotide mappings change after each CALL instruction")
+        output_lines.append("")
+        
+        call_count = 0
+        for addr, instr, operand_dna, operand, nm in instructions:
+            if instr == "CALL":
+                call_count += 1
+            output_lines.append(self.format_instruction_dynamic(addr, instr, operand_dna, operand, nm, call_count))
+        
+        output_lines.append("")
+        output_lines.append(f"Total instructions: {len(instructions)}")
+        output_lines.append(f"CALL operations: {call_count}")
+        
+        return "\n".join(output_lines)
+    
+    def analyze_mapping_evolution(self, code: str) -> Dict:
+        instructions = self.disassemble_dynamic(code)
+        
+        mapping_states = []
+        call_positions = []
+        
+        for addr, instr, operand_dna, operand, nm in instructions:
+            if instr == "CALL":
+                call_positions.append(addr)
+            mapping_states.append((addr, nm.copy()))
+        
+        return {
+            'mapping_evolution': mapping_states,
+            'call_positions': call_positions,
+            'total_calls': len(call_positions)
+        }
+    
+    
+def main():
+    if len(sys.argv) != 2:
+        print(f"Usage: {sys.argv[0]} <dna_bytecode_file>")
+        sys.exit(1)
+    
+    disassembler = DynamicDNADisassembler()
+    
+    print("=== DYNAMIC DISASSEMBLY ===")
+    result = disassembler.disassemble_file_dynamic(sys.argv[1])
+    print(result)
+if __name__ == "__main__":
+    main()
+```
+the results instructions was good especially that we had exactly
+4 call instructions 
+```shell
+Total instructions: 9844
+CALL operations: 4
+```
+To reverse the VM instructions, we begin by analyzing the repeated structure of the first few lines. Here's a representative snippet:
+
+0000: LOAD     AAAGGAAAAA (640) ; flag[0]
+0012: PUSH     GGGTAAAAAA (106)
+0024: MUL
+0026: LOAD     TAAGGAAAAA (641) ; flag[1]
+0038: PUSH     CGTAAAAAAA (27)
+0050: MUL
+...
+
+Instruction Semantics:
+
+    LOAD (addr) – pushes the value at memory[addr] (i.e., flag[i]) onto the stack.
+
+    PUSH (val) – pushes a constant coefficient onto the stack.
+
+    MUL – pops two values, multiplies them, and pushes the result.
+
+    This forms flag[i] × Cj[i].
+
+This pattern of LOAD, PUSH, MUL repeats 49 times, suggesting a coefficient vector Cj of length 49.
+
+Following that, we see a sequence of ADD instructions:
+
+1274: ADD
+1276: ADD
+...
+
+There are 48 ADD instructions, which cumulatively reduce the 49 products to a single sum.
+
+Thus, each block of operations computes:
+
+sum_{i=0}^{48} flag[i] × Cj[i]
+
+This entire process is repeated 49 times, meaning the index j ranges from 0 to 48. For each repetition, a new coefficient vector Cj is used, so we must extract all 49 coefficient vectors C₀, C₁, ..., C₄₈.
+
+i wrote this parser to exctract them all 
+
+```python
+import re
+
+def parse_assembly_equations(assembly_lines):
+    equations = []
+    current_constants = []
+    in_sequence = False
+    load_count = 0
+    prev_instruction = None
+    
+    for line in assembly_lines:
+        match = re.match(r'^\d+:\s*(\w+)\s*(?:([A-Z]+\s*\(\d+\))|\(\d+\))?', line.strip())
+        if not match:
+            continue
+        instruction = match.group(1)
+        
+        if instruction == 'LOAD' and not in_sequence:
+            in_sequence = True
+            load_count = 1
+            current_constants = []
+        
+        elif in_sequence and instruction == 'PUSH':
+            value = match.group(2)
+            if value:
+                constant = re.search(r'\((\d+)\)', value).group(1)
+                current_constants.append(constant)
+        
+        elif in_sequence and instruction == 'LOAD':
+            load_count += 1
+        
+        elif in_sequence and instruction == 'ADD':
+            prev_instruction = 'ADD'
+        
+        elif in_sequence and instruction == 'STORE' and prev_instruction == 'ADD':
+            if load_count == len(current_constants) and load_count == 49:
+                equation = f"sum_{{i=0}}^{{48}} flag[i] × J[i], where J[i] = [{', '.join(current_constants)}]"
+                eq_number_match = re.search(r'\((\d+)\)', line)
+                if eq_number_match:
+                    eq_number = int(eq_number_match.group(1))
+                    equations.append((eq_number, equation))
+                else:
+                    print(f"Warning: Could not find equation number in line: {line}")
+            in_sequence = False
+            prev_instruction = 'STORE'
+        
+        elif in_sequence and instruction == 'LOAD' and prev_instruction != 'STORE':
+            if load_count == len(current_constants) and load_count == 49:
+                equation = f"sum_{{i=0}}^{{48}} flag[i] × J[i], where J[i] = [{', '.join(current_constants)}]"
+                equations.append((None, equation))
+            in_sequence = False
+            load_count = 1
+            current_constants = []
+            prev_instruction = 'LOAD'
+        
+        else:
+            prev_instruction = instruction
+    
+    return equations
+
+with open('asm.txt', 'r') as f:
+    lines = f.readlines()
+
+equations = parse_assembly_equations(lines)
+print(len(equations), "equations found:")
+for eq_number, eq in equations:
+    print(f"Equation stored at {eq_number}: {eq}")
+### Coefficient Vectors (Cj)
+
+The coefficient vectors (Cj) of length 49 for each j ranging from 0 to 48 were extracted. These coefficients are stored in memory starting at address `4096`, with each vector occupying 4 consecutive memory slots. Below is the result:
+
+#### Memory Layout for Coefficient Vectors
+- `memory[4096]` to `memory[4096 + 4 * 48]` contain the coefficients for all 49 equations.
+
+#### Example Coefficients
+Here are some of the extracted coefficient vectors:
+
+- **C₀ (memory[4096]):**
+    ```
+    [106, 27, 140, 138, 108, 91, 131, 138, 106, 127, 161, 115, 177, 152, 15, 55, 230, 131, 147, 183, 235, 197, 200, 104, 188, 196, 118, 28, 21, 97, 151, 217, 118, 22, 212, 31, 101, 227, 155, 237, 146, 68, 75, 71, 218, 173, 41, 220, 161]
+    ```
+
+- **C₁ (memory[4100]):**
+    ```
+    [56, 249, 152, 225, 66, 136, 113, 243, 63, 233, 254, 69, 191, 1, 147, 169, 118, 97, 193, 175, 25, 141, 234, 105, 9, 53, 115, 162, 104, 104, 153, 57, 11, 28, 3, 146, 14, 70, 154, 102, 169, 66, 133, 29, 107, 155, 22, 231, 61]
+    ```
+
+- **C₂ (memory[4104]):**
+    ```
+    [149, 104, 66, 72, 140, 134, 140, 174, 236, 10, 209, 162, 15, 223, 191, 183, 77, 137, 106, 69, 54, 1, 122, 195, 62, 99, 155, 10, 18, 117, 164, 216, 231, 150, 255, 127, 193, 145, 190, 34, 46, 64, 189, 182, 27, 163, 156, 156, 150]
+    ```
+
+- **C₄₈ (memory[4288]):**
+    ```
+    [10, 177, 31, 35, 108, 132, 53, 119, 122, 72, 51, 62, 160, 167, 251, 191, 245, 142, 79, 235, 184, 142, 194, 218, 240, 66, 226, 179, 125, 18, 246, 234, 25, 56, 4, 240, 215, 214, 42, 143, 32, 87, 5, 215, 62, 231, 179, 186, 219]
+    ```
+
+#### Observations
+- Each coefficient vector is used in one of the 49 equations.
+- The equations are structured as:
+    ```
+    sum_{i=0}^{48} flag[i] × Cj[i]
+    ```
+    where `Cj` is the coefficient vector for the j-th equation.
+
+#### Memory Addressing
+- The coefficient vectors are stored sequentially in memory:
+    - `C₀` starts at `memory[4096]`
+    - `C₁` starts at `memory[4100]`
+    - ...
+    - `C₄₈` starts at `memory[4288]`
+
+
+This structure ensures that all 49 equations can be efficiently computed using the stored coefficients.
+
+after that we need to find the sums values
+
+
+
+```assembly
+67774: LOAD     TTTTTTGTTT (4096) [nm: A=2,T=0,G=1,C=3]
+67786: PUSH     TCATCCTAAA (692012) [nm: A=2,T=0,G=1,C=3]
+67798: EQ [nm: A=2,T=0,G=1,C=3]
+67800: LOAD     TGTTTTGTTT (4100) [nm: A=2,T=0,G=1,C=3]
+67812: PUSH     AGGCATGGGA (611030) [nm: A=2,T=0,G=1,C=3]
+67824: EQ [nm: A=2,T=0,G=1,C=3]
+```
+
+*... (continuing with similar patterns) ...*
+
+```assembly
+68996: LOAD     TCCATTGTTT (4284) [nm: A=2,T=0,G=1,C=3]
+69008: PUSH     AAACAGATAA (665322) [nm: A=2,T=0,G=1,C=3]
+69020: EQ [nm: A=2,T=0,G=1,C=3]
+69022: LOAD     TTTCTTGTTT (4288) [nm: A=2,T=0,G=1,C=3]
+69034: PUSH     GATATAGCAA (710793) [nm: A=2,T=0,G=1,C=3]
+69046: EQ [nm: A=2,T=0,G=1,C=3]
+```
+
+## Verification Logic
+
+There are **49 equality checks** that compare loaded values with pushed values. Each comparison pushes either 1 (if equal) or 0 (if not equal) onto the stack.
+
+After finishing all comparisons, the code adds all 49 values on the stack:
+
+```assembly
+69048: ADD [nm: A=2,T=0,G=1,C=3]
+69050: ADD [nm: A=2,T=0,G=1,C=3]
+69052: ADD [nm: A=2,T=0,G=1,C=3]
+69054: ADD [nm: A=2,T=0,G=1,C=3]
+69056: ADD [nm: A=2,T=0,G=1,C=3]
+...
+69138: ADD [nm: A=2,T=0,G=1,C=3]
+69140: ADD [nm: A=2,T=0,G=1,C=3]
+69142: ADD [nm: A=2,T=0,G=1,C=3]
+```
+
+If all comparisons return 1, then: `1 + 1 + 1 + ... + 1 = 49` (correct flag)  
+Otherwise, the sum will be less than 49 (incorrect flag).
+
+```assembly
+69144: PUSH     GTCTTTTTTT (49) [nm: A=2,T=0,G=1,C=3]
+69156: EQ [nm: A=2,T=0,G=1,C=3]
+69158: JNE      TCCAACTTGT (69308) [nm: A=2,T=0,G=1,C=3]
+```
+
+## Output Messages
+
+### If sum ≠ 49 (jumps to 69308):
+Prints "WRONG!" - ASCII values `[87, 82, 79, 78, 71, 33]`
+
+```python
+>>> k = [87, 82, 79, 78, 71, 33]
+>>> "".join([chr(i) for i in k])
+'WRONG!'
+```
+
+### If sum = 49:
+Prints "CORRECT!" - ASCII values `[67, 79, 82, 82, 69, 67, 84, 33]`
+
+```python
+>>> k = [67, 79, 82, 82, 69, 67, 84, 33]
+>>> "".join([chr(i) for i in k])
+'CORRECT!'
+```
+
+## Success Path Assembly
+
+```assembly
+69170: PUSH     CTTGTTTTTT (67) [nm: A=2,T=0,G=1,C=3]   # 'C'
+69182: PRINT [nm: A=2,T=0,G=1,C=3]
+69184: PUSH     CCTGTTTTTT (79) [nm: A=2,T=0,G=1,C=3]   # 'O'
+69196: PRINT [nm: A=2,T=0,G=1,C=3]
+69198: PUSH     ATGGTTTTTT (82) [nm: A=2,T=0,G=1,C=3]   # 'R'
+69210: PRINT [nm: A=2,T=0,G=1,C=3]
+69212: PUSH     ATGGTTTTTT (82) [nm: A=2,T=0,G=1,C=3]   # 'R'
+69224: PRINT [nm: A=2,T=0,G=1,C=3]
+69226: PUSH     GGTGTTTTTT (69) [nm: A=2,T=0,G=1,C=3]   # 'E'
+69238: PRINT [nm: A=2,T=0,G=1,C=3]
+69240: PUSH     CTTGTTTTTT (67) [nm: A=2,T=0,G=1,C=3]   # 'C'
+69252: PRINT [nm: A=2,T=0,G=1,C=3]
+69254: PUSH     TGGGTTTTTT (84) [nm: A=2,T=0,G=1,C=3]   # 'T'
+69266: PRINT [nm: A=2,T=0,G=1,C=3]
+69268: PUSH     GTATTTTTTT (33) [nm: A=2,T=0,G=1,C=3]   # '!'
+69280: PRINT [nm: A=2,T=0,G=1,C=3]
+69282: PUSH     AATTTTTTTT (10) [nm: A=2,T=0,G=1,C=3]   # '\n'
+69294: PRINT [nm: A=2,T=0,G=1,C=3]
+69296: JMP      ACGTCCTTGT (69406) [nm: A=2,T=0,G=1,C=3]
+```
+
+## Failure Path Assembly
+
+```assembly
+69308: PUSH     CGGGTTTTTT (87) [nm: A=2,T=0,G=1,C=3]   # 'W'
+69320: PRINT [nm: A=2,T=0,G=1,C=3]
+69322: PUSH     ATGGTTTTTT (82) [nm: A=2,T=0,G=1,C=3]   # 'R'
+69334: PRINT [nm: A=2,T=0,G=1,C=3]
+69336: PUSH     CCTGTTTTTT (79) [nm: A=2,T=0,G=1,C=3]   # 'O'
+69348: PRINT [nm: A=2,T=0,G=1,C=3]
+69350: PUSH     ACTGTTTTTT (78) [nm: A=2,T=0,G=1,C=3]   # 'N'
+69362: PRINT [nm: A=2,T=0,G=1,C=3]
+69364: PUSH     CGTGTTTTTT (71) [nm: A=2,T=0,G=1,C=3]   # 'G'
+69376: PRINT [nm: A=2,T=0,G=1,C=3]
+69378: PUSH     GTATTTTTTT (33) [nm: A=2,T=0,G=1,C=3]   # '!'
+69390: PRINT [nm: A=2,T=0,G=1,C=3]
+69392: PUSH     AATTTTTTTT (10) [nm: A=2,T=0,G=1,C=3]   # '\n'
+69404: PRINT [nm: A=2,T=0,G=1,C=3]
+69406: HALT [nm: A=2,T=0,G=1,C=3]
+```
+
+## Target Values Extraction
+
+We need to extract the 49 target values for the system of equations:
+
+```python
+target_values = {
+    4096: 692012,
+    4100: 611030,
+    4104: 658676,
+    4108: 556679,
+    4112: 588728,
+    4116: 628470,
+    4120: 659130,
+    4124: 623012,
+    4128: 590356,
+    4132: 670831,
+    4136: 734960,
+    4140: 694096,
+    4144: 673431,
+    4148: 676517,
+    4152: 638313,
+    4156: 730305,
+    4160: 651347,
+    4164: 612947,
+    4168: 614037,
+    4172: 722768,
+    4176: 662232,
+    4180: 608720,
+    4184: 598699,
+    4188: 626932,
+    4192: 659018,
+    4196: 554138,
+    4200: 627484,
+    4204: 620929,
+    4208: 655810,
+    4212: 598103,
+    4216: 664749,
+    4220: 772833,
+    4224: 710796,
+    4228: 669747,
+    4232: 576742,
+    4236: 715958,
+    4240: 682073,
+    4244: 687276,
+    4248: 806029,
+    4252: 660519,
+    4256: 728567,
+    4260: 689664,
+    4264: 746796,
+    4268: 597800,
+    4272: 629625,
+    4276: 585142,
+    4280: 678960,
+    4284: 665322,
+    4288: 710793
+}
+```
+
+## System of Equations
+
+We need to solve the system:
+```
+memory[i] * flag[i] == target_values[i]
+```
+
+To get exactly 49 variables, the 49 equations must be linearly independent, which should be verified.
+let us check it 
+```try:
+    f = np.linalg.solve(A, b)   # if A is invertible
+    print("Matrix A is invertible, proceeding with direct solve.")
+    method = "direct solve"
+```
+and yes it prints it is invertable so we can solve for them
+```
+Matrix A is invertible, proceeding with direct solve.
+Solution method: direct solve
+```
+(System solver)[./systemSolver.py]
+```
+
+import numpy as np
+
+addrs = sorted(memory.keys())
+A = np.vstack([memory[a] for a in addrs])    
+b = np.array([m[a] for a in addrs], dtype=float)  
+
+
+try:
+    f = np.linalg.solve(A, b)   
+    print("Matrix A is invertible, proceeding with direct solve.")
+    method = "direct solve"
+except np.linalg.LinAlgError:
+    
+    f, residuals, rank, s = np.linalg.lstsq(A, b, rcond=None)
+    method = f"least-squares (rank {rank})"
+
+
+f_int = np.rint(f).astype(int)
+
+
+print(f"Solution method: {method}")
+print("Flag bytes:", f_int.tolist())
+print("As ASCII:  ", ''.join(chr(v) for v in f_int))
+if 'residuals' in locals():
+    print("Residual norm²:", residuals)
+```
+and the output was :
+```
+Flag bytes: [119, 101, 95, 111, 117, 103, 104, 116, 95, 116, 111, 95, 115, 116, 97, 114, 116, 95, 115, 116, 111, 114, 105, 110, 103, 95, 111, 117, 114, 95, 100, 97, 116, 97, 95, 97, 115, 95, 100, 110, 97, 95, 105, 110, 115, 116, 101, 97, 100]
+As ASCII:   we_ought_to_start_storing_our_data_as_dna_instead
 ```

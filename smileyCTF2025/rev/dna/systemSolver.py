@@ -107,6 +107,7 @@ b = np.array([m[a] for a in addrs], dtype=float)  # shape (49,)
 # 3) Try a direct solve
 try:
     f = np.linalg.solve(A, b)   # if A is invertible
+    print("Matrix A is invertible, proceeding with direct solve.")
     method = "direct solve"
 except np.linalg.LinAlgError:
     # fallback to least‐squares
